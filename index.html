@@ -134,7 +134,9 @@ function App(){
   const [open,setOpen]=useState(null);
   const [tab,setTab]=useState("rank");
   const [sel,setSel]=useState([]);
-  const [analysisCrit,setAnalysisCrit]=useState(INIT_CRITERIA_FR[0].name);
+  const [analysisCrit,setAnalysisCrit]=useState("criteria");
+  const [axisX,setAxisX]=useState(()=>INIT_CRITERIA_FR[0].name);
+  const [axisY,setAxisY]=useState(()=>INIT_CRITERIA_FR[1].name);
   const [notes,setNotes]=useState({});
   const jdRef=useRef();
   const cvRef=useRef();
@@ -381,8 +383,209 @@ function App(){
     React.createElement("div",{style:{maxWidth:940,margin:"0 auto",padding:"20px 16px",boxSizing:"border-box"}},
 
       // ── RANKING ──
-      tab==="rank"&&React.createElement(React.Fragment,null,...ranked.map((c,i)=>
-        React.createElement("div",{key:c.id,onClick:()=>setOpen(open===c.id?null:c.id),style:{background:"#fff",borderRadius:14,marginBottom:10,overflow:"hidden",boxShadow:"0 2px 10px rgba(3,131,140,.08)",cursor:"pointer",borderLeft:`5px solid ${COLORS[i%COLORS.length]}`,outline:open===c.id?`2px solid ${BL}`:"2px solid transparent"}},
+      tab==="rank"&&React.createElement("div",null,
+
+        // Liste propre
+        React.createElement("div",{style:{background:"#fff",borderRadius:16,overflow:"hidden",boxShadow:"0 2px 16px rgba(3,131,140,.08)",marginBottom:28}},
+          // Header liste
+          React.createElement("div",{style:{background:`linear-gradient(135deg,${BL2},${BL})`,padding:"16px 24px",display:"flex",alignItems:"center",justifyContent:"space-between"}},
+            React.createElement("div",null,
+              React.createElement("p",{style:{margin:0,fontWeight:800,color:"#fff",fontSize:15}},lang==="fr"?"🏆 Classement des candidats":"🏆 Candidate Ranking"),
+              React.createElement("p",{style:{margin:"2px 0 0",color:"rgba(255,255,255,.7)",fontSize:11}},candidates.length+(lang==="fr"?" candidats analysés":" candidates analysed"))
+            ),
+            React.createElement("div",{style:{background:"rgba(255,255,255,.15)",borderRadius:10,padding:"6px 14px",fontSize:12,fontWeight:700,color:"#fff"}},
+              lang==="fr"?"Score global /100":"Global score /100"
+            )
+          ),
+          // Lignes
+          ...ranked.map((c,i)=>{
+            const scoreColor=c.global>=80?"#10b981":c.global>=60?GOLD:"#ef4444";
+            const scoreBg=c.global>=80?"#f0fdf4":c.global>=60?"#fef9c3":"#fef2f2";
+            return React.createElement("div",{key:c.id,
+              onClick:()=>setOpen(open===c.id?null:c.id),
+              style:{borderTop:i>0?"1px solid #f1f5f9":"none",cursor:"pointer",background:open===c.id?LIGHT:"#fff",transition:"background .15s"}},
+              // Ligne principale
+              React.createElement("div",{style:{padding:"14px 24px",display:"flex",alignItems:"center",gap:16}},
+                // Rang
+                React.createElement("div",{style:{width:36,textAlign:"center",flexShrink:0}},
+                  i<3
+                    ?React.createElement("span",{style:{fontSize:22}},["🥇","🥈","🥉"][i])
+                    :React.createElement("span",{style:{fontWeight:800,fontSize:14,color:"#94a3b8"}},"#"+(i+1))
+                ),
+                // Avatar
+                React.createElement("div",{style:{width:42,height:42,borderRadius:12,background:`linear-gradient(135deg,${COLORS[i%COLORS.length]},${COLORS[(i+2)%COLORS.length]})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,fontSize:17,flexShrink:0}},c.name?.[0]),
+                // Infos
+                React.createElement("div",{style:{flex:1,minWidth:0}},
+                  React.createElement("p",{style:{margin:0,fontWeight:700,color:"#1a4a4e",fontSize:14}},c.name),
+                  React.createElement("p",{style:{margin:"2px 0 0",fontSize:12,color:"#64748b",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},c.title)
+                ),
+                // Mini indicateurs
+                React.createElement("div",{style:{display:"flex",gap:6,flexShrink:0}},
+                  [["🔗",c.linkedinScore||0],["🤖",c.aiScore||0],["🧭",c.coherenceScore||0],["📌",c.stabiliteScore||0],["📍",c.geoScore||0]].map(([icon,sc],ki)=>{
+                    const col=ki===1?(sc>=60?"#ef4444":sc>=30?GOLD:"#10b981"):(sc>=70?"#10b981":sc>=50?GOLD:"#ef4444");
+                    return React.createElement("div",{key:icon,style:{textAlign:"center",width:36}},
+                      React.createElement("div",{style:{fontSize:11}},icon),
+                      React.createElement("div",{style:{fontSize:10,fontWeight:700,color:col}},sc+"%")
+                    );
+                  })
+                ),
+                // Score global
+                React.createElement("div",{style:{background:scoreBg,borderRadius:12,padding:"8px 14px",textAlign:"center",flexShrink:0,minWidth:72}},
+                  React.createElement("div",{style:{fontWeight:900,fontSize:22,color:scoreColor,lineHeight:1}},c.global),
+                  React.createElement("div",{style:{fontSize:9,color:"#94a3b8",marginTop:1}},"/100")
+                ),
+                React.createElement("span",{style:{color:"#94a3b8",fontSize:12,flexShrink:0}},open===c.id?"▲":"▼")
+              ),
+              // Détail déroulant
+              open===c.id&&React.createElement("div",{style:{padding:"0 24px 20px"}},
+                React.createElement("p",{style:{color:"#64748b",fontSize:13,lineHeight:1.8,padding:"12px 16px",background:"#f8fafc",borderRadius:10,borderLeft:`3px solid ${BL}`,margin:"0 0 14px",-0:0}},c.summary),
+                c.autoDeclaration&&(c.autoDeclaration.toLowerCase().startsWith("oui")||c.autoDeclaration.toLowerCase().startsWith("yes"))&&
+                  React.createElement("div",{style:{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:10,padding:"10px 14px",marginBottom:12,display:"flex",gap:8}},
+                    React.createElement("span",{style:{fontSize:16,flexShrink:0}},"🚨"),
+                    React.createElement("div",null,React.createElement("p",{style:{margin:0,fontWeight:700,fontSize:12,color:"#dc2626"}},t.autoDecl),React.createElement("p",{style:{margin:"3px 0 0",fontSize:12,color:"#dc2626"}},c.autoDeclaration))
+                  ),
+                // 3 chapitres en accordéon compact
+                React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:12}},
+                  // Empreinte pro
+                  React.createElement("div",{style:{borderRadius:12,overflow:"hidden",border:"1px solid #e2e8f0"}},
+                    React.createElement("div",{style:{background:`linear-gradient(135deg,${BL},#0aabb8)`,padding:"10px 12px",display:"flex",gap:8,alignItems:"center"}},
+                      React.createElement("span",{style:{fontSize:16}},"🏢"),
+                      React.createElement("p",{style:{margin:0,fontWeight:700,fontSize:12,color:"#fff"}},lang==="fr"?"Empreinte Pro":"Professional Track")
+                    ),
+                    React.createElement("div",{style:{padding:"10px 12px",background:"#fff"}},
+                      c.webVerification?.presenceWeb&&React.createElement("p",{style:{margin:"0 0 6px",fontSize:11,color:"#334155"}},"👤 "+c.webVerification.presenceWeb),
+                      ...(c.webVerification?.entreprisesVerifiees||[]).slice(0,3).map((e,j)=>{
+                        const isObj=typeof e==="object";
+                        return React.createElement("div",{key:j,style:{marginBottom:5}},
+                          React.createElement("p",{style:{margin:0,fontWeight:600,fontSize:11,color:"#1a4a4e"}},isObj?e.name:e),
+                          isObj&&e.description&&React.createElement("p",{style:{margin:"1px 0 0",fontSize:10,color:"#94a3b8"}},e.description)
+                        );
+                      }),
+                      c.alertes?.length>0&&React.createElement("div",{style:{marginTop:6,padding:"6px 8px",background:"#fff7ed",borderRadius:8}},
+                        ...c.alertes.slice(0,2).map((a,j)=>React.createElement("p",{key:j,style:{margin:"1px 0",fontSize:10,color:"#c2410c"}},"⚠️ "+a))
+                      )
+                    )
+                  ),
+                  // Géo
+                  React.createElement("div",{style:{borderRadius:12,overflow:"hidden",border:"1px solid #e2e8f0"}},
+                    React.createElement("div",{style:{background:"linear-gradient(135deg,#10b981,#059669)",padding:"10px 12px",display:"flex",gap:8,alignItems:"center",justifyContent:"space-between"}},
+                      React.createElement("div",{style:{display:"flex",gap:8,alignItems:"center"}},React.createElement("span",{style:{fontSize:16}},"📍"),React.createElement("p",{style:{margin:0,fontWeight:700,fontSize:12,color:"#fff"}},lang==="fr"?"Ancrage Géo":"Geo Fit")),
+                      c.geoCategory&&React.createElement("span",{style:{background:"rgba(255,255,255,.25)",color:"#fff",padding:"2px 8px",borderRadius:99,fontSize:10,fontWeight:700}},c.geoCategory)
+                    ),
+                    React.createElement("div",{style:{padding:"10px 12px",background:"#fff"}},
+                      React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8,marginBottom:6}},
+                        React.createElement("p",{style:{margin:0,fontSize:11,fontWeight:600,color:"#1a4a4e"}},c.candidateCity||"—"),
+                        React.createElement("div",{style:{flex:1,height:3,background:"#e2e8f0",borderRadius:99,position:"relative"}},
+                          React.createElement("div",{style:{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:c.estimatedDistanceKm<30?"#10b981":c.estimatedDistanceKm<70?GOLD:"#ef4444",color:"#fff",borderRadius:99,padding:"1px 6px",fontSize:9,fontWeight:700,whiteSpace:"nowrap"}},c.estimatedDistanceKm!=null?c.estimatedDistanceKm+"km":"?km")
+                        ),
+                        React.createElement("p",{style:{margin:0,fontSize:11,fontWeight:600,color:"#1a4a4e"}},c.jobCity||"—")
+                      ),
+                      c.geoNote&&React.createElement("p",{style:{margin:0,fontSize:10,color:"#64748b",lineHeight:1.4,fontStyle:"italic"}},c.geoNote)
+                    )
+                  ),
+                  // ADN carrière
+                  React.createElement("div",{style:{borderRadius:12,overflow:"hidden",border:"1px solid #e2e8f0"}},
+                    React.createElement("div",{style:{background:"linear-gradient(135deg,#8b5cf6,#6d28d9)",padding:"10px 12px",display:"flex",gap:8,alignItems:"center"}},
+                      React.createElement("span",{style:{fontSize:16}},"🧬"),
+                      React.createElement("p",{style:{margin:0,fontWeight:700,fontSize:12,color:"#fff"}},lang==="fr"?"ADN Carrière":"Career DNA")
+                    ),
+                    React.createElement("div",{style:{padding:"10px 12px",background:"#fff"}},
+                      [["🧭",t.coherence,c.coherenceScore,"#8b5cf6",c.coherenceNote],["📌",t.stabilite,c.stabiliteScore,"#f97316",c.stabiliteNote]].map(([icon,label,sc,color,note])=>
+                        React.createElement("div",{key:label,style:{marginBottom:8}},
+                          React.createElement("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:3}},
+                            React.createElement("span",{style:{fontSize:11,fontWeight:600,color:"#334155"}},icon+" "+label),
+                            React.createElement("span",{style:{fontWeight:800,fontSize:12,color}},sc+"%")
+                          ),
+                          React.createElement("div",{style:{background:"#e6f5f6",borderRadius:99,height:5,overflow:"hidden"}},React.createElement("div",{style:{width:`${sc||0}%`,background:color,height:"100%",borderRadius:99}})),
+                          note&&React.createElement("p",{style:{margin:"3px 0 0",fontSize:10,color:"#94a3b8",lineHeight:1.3}},note)
+                        )
+                      ),
+                      React.createElement("div",{style:{display:"flex",gap:6,marginTop:4}},
+                        ...(c.pros||[]).slice(0,1).map((s,j)=>React.createElement("span",{key:j,style:{background:"#f0fdf4",color:"#166534",padding:"2px 8px",borderRadius:99,fontSize:9,fontWeight:600}},"✅ "+s)),
+                        ...(c.cons||[]).slice(0,1).map((w,j)=>React.createElement("span",{key:j,style:{background:"#fef2f2",color:"#dc2626",padding:"2px 8px",borderRadius:99,fontSize:9,fontWeight:600}},"⚠️ "+w))
+                      )
+                    )
+                  )
+                ),
+                // Scores critères
+                React.createElement("div",{style:{background:"#f8fafc",borderRadius:12,padding:"12px 16px"}},
+                  React.createElement("p",{style:{margin:"0 0 10px",fontWeight:700,fontSize:12,color:"#64748b"}},"📊 "+(lang==="fr"?"Scores par critère":"Criteria scores")),
+                  React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"6px 20px"}},
+                    ...(c.scores||[]).map((s,j)=>React.createElement("div",{key:j},
+                      React.createElement("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:3}},
+                        React.createElement("span",{style:{fontSize:11,color:"#334155",fontWeight:600}},s.criterion),
+                        React.createElement("span",{style:{fontSize:12,fontWeight:800,color:COLORS[j%COLORS.length]}},s.score)
+                      ),
+                      React.createElement("div",{style:{background:"#e2e8f0",borderRadius:99,height:5,overflow:"hidden"}},React.createElement("div",{style:{width:`${s.score}%`,background:COLORS[j%COLORS.length],height:"100%",borderRadius:99}}))
+                    ))
+                  )
+                )
+              )
+            );
+          })
+        ),
+
+        // ── MATRICE BCG ──
+        candidates.length>=2&&React.createElement("div",{style:{background:"#fff",borderRadius:16,overflow:"hidden",boxShadow:"0 2px 16px rgba(3,131,140,.08)"}},
+          React.createElement("div",{style:{background:`linear-gradient(135deg,#1a4a4e,${BL})`,padding:"16px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}},
+            React.createElement("div",null,
+              React.createElement("p",{style:{margin:0,fontWeight:800,color:"#fff",fontSize:15}},"🧭 "+(lang==="fr"?"Matrice de Positionnement":"Positioning Matrix")),
+              React.createElement("p",{style:{margin:"2px 0 0",color:"rgba(255,255,255,.7)",fontSize:11}},lang==="fr"?"Positionnez les candidats sur 2 critères clés":"Plot candidates on 2 key criteria")
+            ),
+            // Sélecteurs axes
+            React.createElement("div",{style:{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}},
+              React.createElement("div",{style:{display:"flex",alignItems:"center",gap:6}},
+                React.createElement("span",{style:{color:"rgba(255,255,255,.8)",fontSize:11,fontWeight:600}},"X :"),
+                React.createElement("select",{value:axisX,onChange:e=>setAxisX(e.target.value),style:{padding:"5px 10px",borderRadius:8,border:"none",fontSize:12,fontWeight:600,color:BL,cursor:"pointer"}},
+                  criteria.map(cr=>React.createElement("option",{key:cr.name,value:cr.name},cr.name))
+                )
+              ),
+              React.createElement("div",{style:{display:"flex",alignItems:"center",gap:6}},
+                React.createElement("span",{style:{color:"rgba(255,255,255,.8)",fontSize:11,fontWeight:600}},"Y :"),
+                React.createElement("select",{value:axisY,onChange:e=>setAxisY(e.target.value),style:{padding:"5px 10px",borderRadius:8,border:"none",fontSize:12,fontWeight:600,color:BL,cursor:"pointer"}},
+                  criteria.map(cr=>React.createElement("option",{key:cr.name,value:cr.name},cr.name))
+                )
+              )
+            )
+          ),
+          React.createElement("div",{style:{padding:"24px",position:"relative"}},
+            // Zone matrice
+            React.createElement("div",{style:{position:"relative",height:380,border:`1px solid #e2e8f0`,borderRadius:12,background:"linear-gradient(135deg,#fef2f2 0% 50%,#f0fdf4 50% 100%)",overflow:"hidden"}},
+              // Labels quadrants
+              React.createElement("div",{style:{position:"absolute",top:8,left:8,background:"rgba(255,255,255,.85)",borderRadius:8,padding:"4px 10px",fontSize:10,fontWeight:700,color:"#dc2626"}},lang==="fr"?"⚠️ À risque":"⚠️ At risk"),
+              React.createElement("div",{style:{position:"absolute",top:8,right:8,background:"rgba(255,255,255,.85)",borderRadius:8,padding:"4px 10px",fontSize:10,fontWeight:700,color:"#166534"}},"⭐ "+(lang==="fr"?"Profil idéal":"Ideal profile")),
+              React.createElement("div",{style:{position:"absolute",bottom:8,left:8,background:"rgba(255,255,255,.85)",borderRadius:8,padding:"4px 10px",fontSize:10,fontWeight:700,color:"#92400e"}},lang==="fr"?"🔄 À former":"🔄 Needs training"),
+              React.createElement("div",{style:{position:"absolute",bottom:8,right:8,background:"rgba(255,255,255,.85)",borderRadius:8,padding:"4px 10px",fontSize:10,fontWeight:700,color:"#1d4ed8"}},lang==="fr"?"💡 Spécialiste":"💡 Specialist"),
+              // Lignes de quadrant
+              React.createElement("div",{style:{position:"absolute",left:"50%",top:0,bottom:0,width:1,background:"rgba(0,0,0,.08)"}}),
+              React.createElement("div",{style:{position:"absolute",top:"50%",left:0,right:0,height:1,background:"rgba(0,0,0,.08)"}}),
+              // Axes labels
+              React.createElement("div",{style:{position:"absolute",bottom:"-20px",left:"50%",transform:"translateX(-50%)",fontSize:10,color:"#64748b",fontWeight:600,whiteSpace:"nowrap"}},axisX),
+              React.createElement("div",{style:{position:"absolute",left:"-60px",top:"50%",transform:"translateY(-50%) rotate(-90deg)",fontSize:10,color:"#64748b",fontWeight:600,whiteSpace:"nowrap",width:120,textAlign:"center"}},axisY),
+              // Points candidats
+              ...ranked.map((c,i)=>{
+                const sx=(c.scores||[]).find(s=>s.criterion===axisX)?.score||0;
+                const sy=(c.scores||[]).find(s=>s.criterion===axisY)?.score||0;
+                const size=Math.max(32,Math.min(52,(c.global/100)*52));
+                const px=(sx/100)*90+5;
+                const py=(1-sy/100)*90+5;
+                return React.createElement("div",{key:c.id,style:{position:"absolute",left:`${px}%`,top:`${py}%`,transform:"translate(-50%,-50%)",zIndex:10}},
+                  React.createElement("div",{style:{width:size,height:size,borderRadius:"50%",background:`linear-gradient(135deg,${COLORS[i%COLORS.length]},${COLORS[(i+2)%COLORS.length]})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,fontSize:Math.max(9,size/3.5),boxShadow:`0 2px 8px ${COLORS[i%COLORS.length]}66`,border:"2px solid #fff",cursor:"pointer",title:c.name+" ("+sx+","+sy+")"}},c.name?.[0]),
+                  React.createElement("div",{style:{position:"absolute",bottom:"100%",left:"50%",transform:"translateX(-50%)",background:"#1a4a4e",color:"#fff",padding:"3px 8px",borderRadius:6,fontSize:9,fontWeight:700,whiteSpace:"nowrap",marginBottom:3,pointerEvents:"none"}},c.name.split(" ")[0]+" · "+c.global)
+                );
+              })
+            ),
+            // Légende
+            React.createElement("div",{style:{marginTop:28,display:"flex",flexWrap:"wrap",gap:8,justifyContent:"center"}},
+              ...ranked.map((c,i)=>React.createElement("div",{key:c.id,style:{display:"flex",alignItems:"center",gap:5}},
+                React.createElement("div",{style:{width:12,height:12,borderRadius:"50%",background:`linear-gradient(135deg,${COLORS[i%COLORS.length]},${COLORS[(i+2)%COLORS.length]})`}}),
+                React.createElement("span",{style:{fontSize:11,color:"#64748b",fontWeight:600}},c.name)
+              ))
+            ),
+            React.createElement("p",{style:{textAlign:"center",fontSize:10,color:"#94a3b8",marginTop:8}},lang==="fr"?"La taille des bulles représente le score global · Axe X et Y modifiables":"Bubble size = global score · X and Y axes are customisable")
+          )
+        )
+      ),
           React.createElement("div",{style:{padding:"14px 18px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}},
             React.createElement("div",{style:{width:30,height:30,borderRadius:8,background:i===0?"#fef5dc":i===1?LIGHT:"#f8fafc",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}},i===0?"🥇":i===1?"🥈":i===2?"🥉":"#"+(i+1)),
             React.createElement("div",{style:{width:38,height:38,borderRadius:10,background:`linear-gradient(135deg,${COLORS[i%COLORS.length]},${COLORS[(i+2)%COLORS.length]})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,fontSize:15,flexShrink:0}},c.name?.[0]),
