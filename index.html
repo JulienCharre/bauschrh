@@ -165,15 +165,22 @@ function App(){
   async function doAnalyzeJD(){
     setLoading(true);setLoadMsg(t.analyzingJD);setErr("");
     try{
+      // Tronqué à 3000 caractères pour éviter le rate limit
+      const jdTrunc=jd.slice(0,3000);
       const prompt=lang==="en"
-        ?`You are a strict HR expert. Answer ONLY in English.\n\nJob description:\n\n${jd}\n\nExtract 5 key HR criteria. JSON: {"criteria":[{"name":"criterion","weight":20}]}. Total weight=100.`
-        :`Tu es un expert RH rigoureux. Réponds UNIQUEMENT en français.\n\nFiche de poste:\n\n${jd}\n\nExtrait 5 critères RH clés. JSON: {"criteria":[{"name":"critère","weight":20}]}. Total poids=100.`;
+        ?`You are a strict HR expert. Answer ONLY in English.\n\nJob description:\n\n${jdTrunc}\n\nExtract 5 key HR criteria. JSON: {"criteria":[{"name":"criterion","weight":20}]}. Total weight=100.`
+        :`Tu es un expert RH rigoureux. Réponds UNIQUEMENT en français.\n\nFiche de poste:\n\n${jdTrunc}\n\nExtrait 5 critères RH clés. JSON: {"criteria":[{"name":"critère","weight":20}]}. Total poids=100.`;
       const raw=await callAPI(apiKey,[{role:"user",content:prompt}],false);
       const p=JSON.parse(raw);
       setCriteria(p.criteria);
       setAnalysisCrit(p.criteria[0]?.name||"");
       setPage("criteria");
-    }catch(e){setErr(e.message.slice(0,100));}
+    }catch(e){
+      const msg=e.message||"";
+      setErr(msg.includes("rate")||msg.includes("overloaded")
+        ?(lang==="fr"?"⏳ Limite API atteinte — attendez 1 minute et réessayez.":"⏳ API rate limit — wait 1 minute and retry.")
+        :msg.slice(0,120));
+    }
     setLoading(false);
   }
 
