@@ -1,241 +1,140 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sélection & Ranking RH – Bausch + Lomb</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-  <style>* { box-sizing: border-box; margin: 0; padding: 0; } body { font-family: system-ui, sans-serif; }</style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sélection & Ranking RH – Bausch + Lomb</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:system-ui,sans-serif;}</style>
 </head>
 <body>
 <div id="root"></div>
 <script>
-const HARDCODED_KEY = "sk-ant-VOTRE-CLE-ICI"; // ← remplacez par votre clé
-
-const {useState,useRef,useEffect}=React;
+const {useState,useRef}=React;
 const BL="#03838C",BL2="#025f66",GOLD="#F8C05A",LIGHT="#e6f5f6";
 const COLORS=[BL,"#0aabb8",GOLD,"#e07b2a","#025f66","#6dcbd3","#8b5cf6","#f97316"];
 
 const TR={
   fr:{
-    appTitle:"Sélection & Ranking RH",
-    appSub:"Importez votre fiche de poste — l'IA extrait les critères et classe vos candidats",
-    apiTitle:"Sélection & Ranking RH",
-    apiSub:"Entrez votre clé API Anthropic pour activer l'IA",
-    apiPlaceholder:"sk-ant-api03-...",
-    apiNote:"🔒 Clé stockée dans votre navigateur uniquement. Obtenez-la sur ",
-    apiBtn:"✨ Activer l'IA",
-    apiChecking:"⏳ Vérification...",
-    apiOverloaded:"⏳ Serveurs surchargés — réessayez dans 30 secondes.",
-    apiInvalid:"Clé invalide : ",
-    apiDemo:"→ Voir la démo sans clé API",
-    langLabel:"Langue / Language",
-    jdTitle:"Fiche de poste",
-    jdText:"✏️ Coller le texte",
-    jdFile:"📄 Importer un fichier",
-    jdPlaceholder:"Collez votre job description...",
-    jdDrop:"Glissez-déposez votre fichier ici",
-    jdDropSub:"ou cliquez pour sélectionner · PDF ou Word (.docx)",
-    jdFileLoaded:"Cliquez ou déposez un autre fichier pour changer",
-    jdBtn:"✨ Analyser la fiche de poste",
-    jdAnalyzing:"⏳ Analyse...",
-    jdDemo:"→ Voir la démo",
-    stepJD:"1·JD",stepCrit:"2·Critères",stepCV:"3·CVs",stepRank:"4·Ranking",
-    critTitle:"Critères détectés",
-    critSub:"Modifiez si nécessaire (total = 100%)",
-    critOk:"✅ Total 100% — parfait !",
-    critWarn:"⚠️ Total : ",
-    critAdd:"+ Ajouter",
-    critNext:"Valider et passer aux CVs →",
-    cvTitle:"Étape 3 — Dépôt des CVs",
-    cvDrop:"Glissez-déposez vos CVs ici",
-    cvDropSub:"ou cliquez pour sélectionner · PDF uniquement · Plusieurs fichiers acceptés",
-    cvRanking:"🏆 Voir le ranking",
-    cvBack:"↩ Critères",
+    appTitle:"Sélection & Ranking RH",appSub:"Importez votre fiche de poste — l'IA extrait les critères et classe vos candidats",
+    apiSub:"Entrez votre clé API Anthropic pour activer l'IA",apiNote:"🔒 Clé stockée dans votre navigateur. Obtenez-la sur ",
+    apiBtn:"✨ Activer l'IA",apiChecking:"⏳ Vérification...",
+    apiOverloaded:"⏳ Serveurs surchargés — réessayez dans 30 secondes.",apiInvalid:"Clé invalide : ",
+    jdText:"✏️ Coller le texte",jdFile:"📄 Importer un fichier",jdPlaceholder:"Collez votre job description...",
+    jdDrop:"Glissez-déposez votre fichier ici",jdDropSub:"ou cliquez · PDF ou Word (.docx)",jdFileLoaded:"Cliquez ou déposez un autre fichier",
+    jdBtn:"✨ Analyser la fiche de poste",jdAnalyzing:"⏳ Analyse...",
+    s1:"1·JD",s2:"2·Critères",s3:"3·CVs",s4:"4·Ranking",
+    critTitle:"Critères détectés",critSub:"Modifiez si nécessaire (total = 100%)",
+    critOk:"✅ Total 100% — parfait !",critWarn:"⚠️ Total : ",critAdd:"+ Ajouter",critNext:"Valider et passer aux CVs →",
+    cvSub:"Étape 3 — Dépôt des CVs",cvBack:"↩ Critères",cvDrop:"Glissez-déposez vos CVs ici",
+    cvDropSub:"ou cliquez · PDF uniquement · Plusieurs fichiers acceptés",cvBtn:"🏆 Voir le ranking",
     tabRank:"🏆 Ranking",tabAnalyse:"📊 Analyse",tabCompare:"⚖️ Comparer",tabNotes:"📝 Notes",
-    btnCVs:"+ CVs",btnNewJD:"↩ Nouvelle JD",btnKey:"🔑 Clé API",
-    btnBack:"↩ JD",
-    analysePick:"Sélectionnez un critère :",
-    compareTitle:"Sélectionnez jusqu'à 3 candidats :",
-    compareMin:"Sélectionnez au moins 2 candidats",
-    globalScore:"Score global",
+    btnCVs:"+ CVs",btnJD:"↩ Nouvelle JD",btnKey:"🔑 Clé API",btnBackJD:"↩ JD",
+    globalScore:"Score global",analysePick:"Sélectionnez un critère :",
+    compareTitle:"Sélectionnez jusqu'à 3 candidats :",compareMin:"Sélectionnez au moins 2 candidats",
     notesPlaceholder:"Notes, impressions, décision finale...",
-    autoDecl:"Auto-déclaration détectée",
-    webVerif:"🌐 Vérification web",
-    webPerson:"👤 ",
-    webCompanies:"ENTREPRISES",
-    webPress:"ARTICLES / PRESSE",
-    webIncoh:"⚠️ INCOHÉRENCES DÉTECTÉES",
-    alertes:"⚠️ Alertes détectées",
-    pros:"✅ Points forts",
-    cons:"⚠️ Points d'attention",
-    coherence:"🧭 Cohérence",
-    stabilite:"📌 Stabilité",
-    linkedin:"🔗 LinkedIn",
-    ia:"🤖 IA",
+    autoDecl:"🚨 Auto-déclaration détectée",webVerif:"🌐 Vérification web",
+    webCompanies:"ENTREPRISES",webPress:"ARTICLES / PRESSE",webIncoh:"⚠️ INCOHÉRENCES DÉTECTÉES",
+    alertes:"⚠️ Alertes détectées",pros:"✅ Points forts",cons:"⚠️ Points d'attention",
+    coherence:"🧭 Cohérence",stabilite:"📌 Stabilité",linkedin:"🔗 LinkedIn",ia:"🤖 IA",
+    geo:"📍 Proximité",geoOnSite:"Sur place",geoNear:"Proche",geoFar:"Éloigné",
+    geoLabel:"📍 Localisation",
+    geoDesc0:"Aucun déménagement",geoDesc1:"Trajet possible",geoDesc2:"Déménagement probable",
+    liDesc0:"Profil vérifiable",liDesc1:"Partiellement vérifiable",liDesc2:"Difficile à vérifier",
+    iaDesc0:"CV rédigé par un humain",iaDesc1:"Mixte humain / IA",iaDesc2:"CV rédigé par IA",
+    cohDesc0:"Parcours cohérent et progressif",cohDesc1:"Quelques ruptures de parcours",cohDesc2:"Parcours incohérent ou anarchique",
+    stabDesc0:"Candidat fidèle et stable",stabDesc1:"Durées variables selon les postes",stabDesc2:"Candidat instable — postes courts",
     excellent:"Excellent",bon:"Bon",faible:"Faible",
     coherent:"Cohérent",partiel:"Partiel",incoherent:"Incohérent",
     stable:"Stable",variable:"Variable",instable:"Instable",
     humain:"Humain",mixte:"Mixte",iaDetect:"IA détecté",
-    candidats:"candidats",
-    analyzingJD:"Analyse de la fiche de poste...",
-    analyzingCV:"Analyse + vérification web de ",
-    promptJD:`Extrait 5 critères RH clés. JSON: {"criteria":[{"name":"critère","weight":20}]}. Total poids=100.`,
-    promptLang:"fr",
+    candidats:"candidats",analyzingJD:"Analyse de la fiche de poste...",analyzingCV:"Analyse + vérification web : ",
   },
   en:{
-    appTitle:"Candidate Selection & Ranking",
-    appSub:"Import your job description — AI extracts criteria and ranks your candidates",
-    apiTitle:"Candidate Selection & Ranking",
-    apiSub:"Enter your Anthropic API key to activate AI",
-    apiPlaceholder:"sk-ant-api03-...",
-    apiNote:"🔒 Key stored in your browser only. Get it at ",
-    apiBtn:"✨ Activate AI",
-    apiChecking:"⏳ Checking...",
-    apiOverloaded:"⏳ Servers overloaded — please retry in 30 seconds.",
-    apiInvalid:"Invalid key: ",
-    apiDemo:"→ View demo without API key",
-    langLabel:"Langue / Language",
-    jdTitle:"Job Description",
-    jdText:"✏️ Paste text",
-    jdFile:"📄 Import file",
-    jdPlaceholder:"Paste your job description here...",
-    jdDrop:"Drag & drop your file here",
-    jdDropSub:"or click to select · PDF or Word (.docx)",
-    jdFileLoaded:"Click or drop another file to change",
-    jdBtn:"✨ Analyse job description",
-    jdAnalyzing:"⏳ Analysing...",
-    jdDemo:"→ View demo",
-    stepJD:"1·JD",stepCrit:"2·Criteria",stepCV:"3·CVs",stepRank:"4·Ranking",
-    critTitle:"Detected criteria",
-    critSub:"Edit if needed (total = 100%)",
-    critOk:"✅ Total 100% — perfect!",
-    critWarn:"⚠️ Total: ",
-    critAdd:"+ Add",
-    critNext:"Validate criteria and move to CVs →",
-    cvTitle:"Step 3 — Upload CVs",
-    cvDrop:"Drag & drop your CVs here",
-    cvDropSub:"or click to select · PDF only · Multiple files accepted",
-    cvRanking:"🏆 View ranking",
-    cvBack:"↩ Criteria",
+    appTitle:"Candidate Selection & Ranking",appSub:"Import your job description — AI extracts criteria and ranks candidates",
+    apiSub:"Enter your Anthropic API key to activate AI",apiNote:"🔒 Key stored in your browser. Get it at ",
+    apiBtn:"✨ Activate AI",apiChecking:"⏳ Checking...",
+    apiOverloaded:"⏳ Servers overloaded — retry in 30 seconds.",apiInvalid:"Invalid key: ",
+    jdText:"✏️ Paste text",jdFile:"📄 Import file",jdPlaceholder:"Paste your job description here...",
+    jdDrop:"Drag & drop your file here",jdDropSub:"or click · PDF or Word (.docx)",jdFileLoaded:"Click or drop another file",
+    jdBtn:"✨ Analyse job description",jdAnalyzing:"⏳ Analysing...",
+    s1:"1·JD",s2:"2·Criteria",s3:"3·CVs",s4:"4·Ranking",
+    critTitle:"Detected criteria",critSub:"Edit if needed (total = 100%)",
+    critOk:"✅ Total 100% — perfect!",critWarn:"⚠️ Total: ",critAdd:"+ Add",critNext:"Validate criteria and move to CVs →",
+    cvSub:"Step 3 — Upload CVs",cvBack:"↩ Criteria",cvDrop:"Drag & drop your CVs here",
+    cvDropSub:"or click · PDF only · Multiple files accepted",cvBtn:"🏆 View ranking",
     tabRank:"🏆 Ranking",tabAnalyse:"📊 Analysis",tabCompare:"⚖️ Compare",tabNotes:"📝 Notes",
-    btnCVs:"+ CVs",btnNewJD:"↩ New JD",btnKey:"🔑 API Key",
-    btnBack:"↩ JD",
-    analysePick:"Select a criterion:",
-    compareTitle:"Select up to 3 candidates:",
-    compareMin:"Select at least 2 candidates",
-    globalScore:"Global score",
+    btnCVs:"+ CVs",btnJD:"↩ New JD",btnKey:"🔑 API Key",btnBackJD:"↩ JD",
+    globalScore:"Global score",analysePick:"Select a criterion:",
+    compareTitle:"Select up to 3 candidates:",compareMin:"Select at least 2 candidates",
     notesPlaceholder:"Notes, impressions, final decision...",
-    autoDecl:"Self-declaration detected",
-    webVerif:"🌐 Web verification",
-    webPerson:"👤 ",
-    webCompanies:"COMPANIES",
-    webPress:"PRESS / ARTICLES",
-    webIncoh:"⚠️ INCONSISTENCIES DETECTED",
-    alertes:"⚠️ Alerts detected",
-    pros:"✅ Strengths",
-    cons:"⚠️ Areas of concern",
-    coherence:"🧭 Consistency",
-    stabilite:"📌 Stability",
-    linkedin:"🔗 LinkedIn",
-    ia:"🤖 AI",
+    autoDecl:"🚨 Self-declaration detected",webVerif:"🌐 Web verification",
+    webCompanies:"COMPANIES",webPress:"PRESS / ARTICLES",webIncoh:"⚠️ INCONSISTENCIES DETECTED",
+    alertes:"⚠️ Alerts",pros:"✅ Strengths",cons:"⚠️ Areas of concern",
+    coherence:"🧭 Consistency",stabilite:"📌 Stability",linkedin:"🔗 LinkedIn",ia:"🤖 AI",
+    geo:"📍 Proximity",geoOnSite:"On-site",geoNear:"Nearby",geoFar:"Remote",
+    geoLabel:"📍 Location",
+    geoDesc0:"No relocation needed",geoDesc1:"Commute possible",geoDesc2:"Relocation likely needed",
+    liDesc0:"Verifiable profile",liDesc1:"Partially verifiable",liDesc2:"Hard to verify",
+    iaDesc0:"Human-written CV",iaDesc1:"Mixed human / AI",iaDesc2:"AI-generated CV",
+    cohDesc0:"Consistent & progressive career",cohDesc1:"Some career breaks",cohDesc2:"Inconsistent or erratic career",
+    stabDesc0:"Loyal & stable candidate",stabDesc1:"Variable tenure across roles",stabDesc2:"Unstable — short positions",
     excellent:"Excellent",bon:"Good",faible:"Weak",
     coherent:"Consistent",partiel:"Partial",incoherent:"Inconsistent",
     stable:"Stable",variable:"Variable",instable:"Unstable",
     humain:"Human",mixte:"Mixed",iaDetect:"AI detected",
-    candidats:"candidates",
-    analyzingJD:"Analysing job description...",
-    analyzingCV:"Analysing + web check: ",
-    promptJD:`Extract 5 key HR criteria. JSON: {"criteria":[{"name":"criterion","weight":20}]}. Total weight=100.`,
-    promptLang:"en",
+    candidats:"candidates",analyzingJD:"Analysing job description...",analyzingCV:"Analysing + web check: ",
   }
 };
-  {id:1,name:"Olivier Dörner",title:"Conseiller Ventes & Digital (auto-déclaré Pharmacie)",exp:"10+ ans",edu:"MBA Digital 360 – MediaSchool",aiScore:28,linkedinScore:82,coherenceScore:82,stabiliteScore:88,coherenceNote:"✅ Fil digital cohérent. Jamais commercial ni pharma.",stabiliteNote:"✅ Très stable : 5 ans + 3 ans CDI.",summary:"Profil digital solide MAIS aucune télévente réelle. Titre Pharmacie auto-déclaré.",global:67,scores:[{criterion:"Télévente & prospection",score:42,why:"⚠️ Aucune télévente dans ses postes réels."},{criterion:"Outils digitaux & CRM",score:92,why:"✅ Google Ads, SEMrush, HubSpot, Brevo — meilleur stack du lot."},{criterion:"Pilotage KPIs",score:85,why:"✅ KPI B2B, ROI, analyses marché vérifiables."},{criterion:"Connaissance pharma",score:38,why:"⚠️ EFORS = généraliste, Private Sport Shop = retail sport."},{criterion:"Communication & équipe",score:80,why:"✅ Coordination équipes, social media, agence."}],pros:["Meilleur stack digital","Très stable","Profil data-driven"],cons:["Aucune télévente réelle","Aucune expérience pharma","Titre Pharmacie auto-déclaré"]},
-  {id:2,name:"Gladys Chanussot",title:"Conseillère Ventes & Digital – LEA Bausch+Lomb",exp:"20+ ans",edu:"Licence Sciences de Gestion",aiScore:18,linkedinScore:78,coherenceScore:70,stabiliteScore:75,coherenceNote:"⚠️ Parcours en zigzag : admin → journaliste → SEO → LEA.",stabiliteNote:"✅ HORIBA 9 ans, Chauvin 4 ans, freelance 4 ans.",summary:"Connaissance interne B+L réelle. Poste actuel réglementaire, pas commercial.",global:63,scores:[{criterion:"Télévente & prospection",score:40,why:"⚠️ Aisance téléphonique mais aucun poste de télévente réel."},{criterion:"Outils digitaux & CRM",score:72,why:"✅ SEO, emailing, WordPress, Google Analytics."},{criterion:"Pilotage KPIs",score:62,why:"✅ Suivi KPIs cohérent avec missions SEO freelance."},{criterion:"Connaissance pharma",score:90,why:"✅ Chauvin 2014-2018 + B+L depuis 2024. Connaissance interne réelle."},{criterion:"Communication & équipe",score:78,why:"✅ Animation cohortes, soutien équipes commerciales."}],pros:["Connaissance interne B+L","Expertise pharma réelle","Stabilité rassurante"],cons:["Aucune télévente démontrée","Poste actuel réglementaire","Reconversion commerciale tardive"]},
-  {id:3,name:"Jérémy Salles",title:"Conseiller Ventes – candidature B+L",exp:"3 ans",edu:"Master 2 Dev. Commercial – Pigier",aiScore:62,linkedinScore:72,coherenceScore:80,stabiliteScore:62,coherenceNote:"✅ Fil commercial B2B progressif : ameublement → télécom → BTP.",stabiliteNote:"⚠️ Scop3 = 3 mois seulement — signal à questionner.",summary:"Le seul avec une vraie prospection téléphonique vérifiable. Zéro pharma.",global:57,scores:[{criterion:"Télévente & prospection",score:78,why:"✅ Conexio Telecom : prospection téléphonique pro. Scop3 : +20 rdv/3 contrats."},{criterion:"Outils digitaux & CRM",score:40,why:"⚠️ HubSpot CRM uniquement. Pas de digital marketing."},{criterion:"Pilotage KPIs",score:72,why:"✅ Résultats chiffrés récents et vérifiables."},{criterion:"Connaissance pharma",score:12,why:"⚠️ BTP, télécom, ameublement. Zéro pharma."},{criterion:"Communication & équipe",score:78,why:"✅ Relationnel, écoute active, esprit d'équipe."}],pros:["Meilleur en télévente réelle","Fil commercial cohérent","Fort potentiel"],cons:["Scop3 = 3 mois (signal)","Zéro pharma","Digital absent"]},
-  {id:4,name:"Nouhaila Fakhroeddine",title:"Cheffe de Produit Junior – Pharma Rx B+L",exp:"2 ans",edu:"Mastère Marketing Santé – KEDGE",aiScore:58,linkedinScore:80,coherenceScore:82,stabiliteScore:58,coherenceNote:"✅ Reconversion logique : biologie → KEDGE santé → B+L Pharma Rx.",stabiliteNote:"⚠️ Postes courts mais logique formation.",summary:"#1 connaissance pharma. Bausch+Lomb de l'intérieur. Profil marketing, pas commercial.",global:58,scores:[{criterion:"Télévente & prospection",score:38,why:"⚠️ Chef de produit = interface marketing/vente. Aucune télévente directe."},{criterion:"Outils digitaux & CRM",score:50,why:"⚠️ Excel, Canva, Power BI notions. Niveau basique."},{criterion:"Pilotage KPIs",score:60,why:"✅ Benchmarks, analyses marché, suivi opérationnel."},{criterion:"Connaissance pharma",score:95,why:"✅ B+L Pharma Rx, argumentaires validés médical, KEDGE santé."},{criterion:"Communication & équipe",score:72,why:"✅ Coordination inter-équipes, congrès, forces de vente."}],pros:["#1 connaissance pharma","Reconversion cohérente","Formation santé pointue"],cons:["Aucune télévente","Outils digitaux limités","Marketing ≠ commercial"]}
-];
 
-const INIT_CRITERIA=[
-  {name:"Télévente & prospection",weight:30},
-  {name:"Outils digitaux & CRM",weight:25},
-  {name:"Pilotage KPIs",weight:20},
-  {name:"Connaissance pharma",weight:15},
-  {name:"Communication & équipe",weight:10}
-];
+const INIT_CRITERIA_FR=[{name:"Télévente & prospection",weight:30},{name:"Outils digitaux & CRM",weight:25},{name:"Pilotage KPIs",weight:20},{name:"Connaissance pharma",weight:15},{name:"Communication & équipe",weight:10}];
+const INIT_CRITERIA_EN=[{name:"Telesales & prospecting",weight:30},{name:"Digital tools & CRM",weight:25},{name:"KPI management",weight:20},{name:"Pharma knowledge",weight:15},{name:"Communication & teamwork",weight:10}];
 
-async function claude(key,messages,retries=3){
-  for(let i=0;i<retries;i++){
-    const r=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,system:"Expert RH. Réponds UNIQUEMENT en JSON valide, sans markdown ni backticks.",messages})
-    });
+function toB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(f);});}
+
+async function callAPI(key,messages,useSearch){
+  for(let i=0;i<3;i++){
+    const body={model:"claude-sonnet-4-20250514",max_tokens:useSearch?3000:2000,system:"HR expert. Reply ONLY with valid JSON, no markdown.",messages};
+    if(useSearch)body.tools=[{type:"web_search_20250305",name:"web_search"}];
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify(body)});
     const d=await r.json();
-    if(r.status===529||d.error?.type==="overloaded_error"){
-      if(i<retries-1){await new Promise(res=>setTimeout(res,3000*(i+1)));continue;}
-      throw new Error("overloaded");
-    }
-    if(!r.ok)throw new Error(d.error?.message||JSON.stringify(d));
-    return d.content[0].text.replace(/```json|```/g,"").trim();
-  }
-}
-
-async function claudeWithSearch(key,messages,retries=3){
-  for(let i=0;i<retries;i++){
-    const r=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3000,system:"Expert RH rigoureux. Réponds UNIQUEMENT en JSON valide, sans markdown ni backticks.",tools:[{type:"web_search_20250305",name:"web_search"}],messages})
-    });
-    const d=await r.json();
-    if(r.status===529||d.error?.type==="overloaded_error"){
-      if(i<retries-1){await new Promise(res=>setTimeout(res,3000*(i+1)));continue;}
-      throw new Error("overloaded");
-    }
+    if(r.status===529||d.error?.type==="overloaded_error"){if(i<2){await new Promise(res=>setTimeout(res,3000*(i+1)));continue;}throw new Error("overloaded");}
     if(!r.ok)throw new Error(d.error?.message||JSON.stringify(d));
     const texts=(d.content||[]).filter(b=>b.type==="text");
-    if(!texts.length)throw new Error("Aucune réponse texte reçue");
+    if(!texts.length)throw new Error("No text response");
     return texts[texts.length-1].text.replace(/```json|```/g,"").trim();
   }
 }
 
-async function claude(key,messages){
-  const r=await fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST",
-    headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,system:"Expert RH. Réponds UNIQUEMENT en JSON valide, sans markdown ni backticks.",messages})
-  });
-  const d=await r.json();
-  if(!r.ok)throw new Error(d.error?.message||JSON.stringify(d));
-  return d.content[0].text.replace(/```json|```/g,"").trim();
-}
-
-function Bar({score,color}){return React.createElement("div",{style:{background:"#e6f5f6",borderRadius:99,height:6,overflow:"hidden"}},React.createElement("div",{style:{width:`${score}%`,background:color||BL,height:"100%",borderRadius:99}}));}
-function Badge({score}){const[bg,c,l]=score>=80?["#d1faf5","#025f66","Excellent"]:score>=60?["#fef5dc","#b07a10","Bon"]:["#fde8e8","#b91c1c","Faible"];return React.createElement("span",{style:{background:bg,color:c,padding:"3px 10px",borderRadius:99,fontSize:11,fontWeight:700}},l);}
-function Pill({score,labels}){const i=score>=75?0:score>=55?1:2;const cols=[["#d1faf5","#025f66"],["#fef5dc","#b07a10"],["#fde8e8","#b91c1c"]];return React.createElement("span",{style:{background:cols[i][0],color:cols[i][1],padding:"2px 6px",borderRadius:99,fontSize:9,fontWeight:700}},labels[i]);}
-
+function Bar({score,color}){return React.createElement("div",{style:{background:"#e6f5f6",borderRadius:99,height:6,overflow:"hidden"}},React.createElement("div",{style:{width:`${score||0}%`,background:color||BL,height:"100%",borderRadius:99}}));}
+function Bdg({score,labels,colors}){const i=score>=75?0:score>=55?1:2;return React.createElement("span",{style:{background:colors[i][0],color:colors[i][1],padding:"2px 7px",borderRadius:99,fontSize:9,fontWeight:700}},labels[i]);}
 function Logo({size}){const s=(size||44)/44;return React.createElement("svg",{width:130*s,height:44*s,viewBox:"0 0 130 44"},React.createElement("text",{x:0,y:36,fill:"#03838C",fontSize:40,fontWeight:900,fontFamily:"Arial Black,Arial,sans-serif"},"B"),React.createElement("rect",{x:48,y:6,width:12,height:32,fill:"#7dbb8a"}),React.createElement("rect",{x:36,y:16,width:36,height:12,fill:"#6dcbe8"}),React.createElement("rect",{x:48,y:16,width:12,height:12,fill:"#03838C"}),React.createElement("text",{x:78,y:36,fill:"#03838C",fontSize:40,fontWeight:900,fontFamily:"Arial Black,Arial,sans-serif"},"L"));}
 
 function App(){
-  const [apiKey]=useState(HARDCODED_KEY);
-  const [apiOk]=useState(true);
+  const [lang,setLang]=useState(()=>localStorage.getItem("bl_lang")||"fr");
+  const t=TR[lang];
+  function switchLang(l){setLang(l);localStorage.setItem("bl_lang",l);}
+
+  const [apiKey,setApiKey]=useState(()=>localStorage.getItem("bl_key")||"");
+  const [apiOk,setApiOk]=useState(()=>!!localStorage.getItem("bl_key"));
+  const [apiErr,setApiErr]=useState("");
+  const [testing,setTesting]=useState(false);
 
   const [page,setPage]=useState("jd");
-  const [jd,setJd]=useState("");
   const [jdMode,setJdMode]=useState("text");
+  const [jd,setJd]=useState("");
   const [jdFile,setJdFile]=useState(null);
-  const [criteria,setCriteria]=useState(INIT_CRITERIA);
-  const [candidates,setCandidates]=useState(DEMO);
+  const [criteria,setCriteria]=useState(INIT_CRITERIA_FR);
+  const [candidates,setCandidates]=useState([]);
   const [loading,setLoading]=useState(false);
   const [loadMsg,setLoadMsg]=useState("");
   const [err,setErr]=useState("");
   const [open,setOpen]=useState(null);
   const [tab,setTab]=useState("rank");
   const [sel,setSel]=useState([]);
-  const [analysisCrit,setAnalysisCrit]=useState(INIT_CRITERIA[0].name);
+  const [analysisCrit,setAnalysisCrit]=useState(INIT_CRITERIA_FR[0].name);
   const [notes,setNotes]=useState({});
   const jdRef=useRef();
   const cvRef=useRef();
@@ -251,14 +150,10 @@ function App(){
 
   async function testKey(){
     if(!apiKey.trim())return;
-    setTestingKey(true);setApiErr("");
-    try{
-      await claude(apiKey,[{role:"user",content:"dis OK"}]);
-      localStorage.setItem("bl_key",apiKey);
-      setApiOk(true);
-    }catch(e){      setApiErr(e.message.includes("overloaded")||e.message.includes("529")
-        ? t.apiOverloaded : t.apiInvalid+e.message.slice(0,80));}
-    setTestingKey(false);
+    setTesting(true);setApiErr("");
+    try{await callAPI(apiKey,[{role:"user",content:"say OK"}],false);localStorage.setItem("bl_key",apiKey);setApiOk(true);}
+    catch(e){setApiErr(e.message.includes("overloaded")?t.apiOverloaded:t.apiInvalid+e.message.slice(0,60));}
+    setTesting(false);
   }
 
   async function handleJdFile(f){
@@ -268,63 +163,32 @@ function App(){
   }
 
   async function doAnalyzeJD(){
-    setLoading(true);setLoadMsg("Analyse de la fiche de poste...");setErr("");
+    setLoading(true);setLoadMsg(t.analyzingJD);setErr("");
     try{
-      const raw=await claude(apiKey,[{role:"user",content:`${lang==="en"?"You are a strict HR expert. Answer ONLY in English.":"Tu es un expert RH rigoureux. Réponds UNIQUEMENT en français."}\n\nJob description:\n\n${jd}\n\n${t.promptJD}`}]);
+      const prompt=lang==="en"
+        ?`You are a strict HR expert. Answer ONLY in English.\n\nJob description:\n\n${jd}\n\nExtract 5 key HR criteria. JSON: {"criteria":[{"name":"criterion","weight":20}]}. Total weight=100.`
+        :`Tu es un expert RH rigoureux. Réponds UNIQUEMENT en français.\n\nFiche de poste:\n\n${jd}\n\nExtrait 5 critères RH clés. JSON: {"criteria":[{"name":"critère","weight":20}]}. Total poids=100.`;
+      const raw=await callAPI(apiKey,[{role:"user",content:prompt}],false);
       const p=JSON.parse(raw);
       setCriteria(p.criteria);
+      setAnalysisCrit(p.criteria[0]?.name||"");
       setPage("criteria");
-    }catch(e){setErr("Erreur : "+e.message.slice(0,100));}
+    }catch(e){setErr(e.message.slice(0,100));}
     setLoading(false);
   }
 
   async function doAnalyzeCV(f){
-    setLoading(true);setLoadMsg(`Analyse + vérification web de ${f.name}...`);setErr("");
+    setLoading(true);setLoadMsg(t.analyzingCV+f.name);setErr("");
     try{
       const b64=await toB64(f);
-      const raw=await claudeWithSearch(apiKey,[{role:"user",content:[
-        {type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},
-        {type:"text",text:`${lang==="en"
-  ?"You are a rigorous HR expert. Answer ONLY in English. Use English field names in JSON."
-  :"Tu es un expert RH rigoureux et critique. Réponds UNIQUEMENT en français."}
-
-${lang==="en"?"Evaluation criteria:":"Critères d'évaluation:"} ${JSON.stringify(criteria)}
-
-${lang==="en"
-?"STEP 1 — READ THE CV CAREFULLY. Extract: full name, companies, positions, dates, degrees, figures.\n\nSTEP 2 — MANDATORY WEB SEARCHES. For each key element, search the web to verify:\n- Real existence of companies (e.g. 'UWAVE company', 'EFORS Pérols firm')\n- Candidate presence online or LinkedIn (e.g. 'FirstName LastName company LinkedIn')\n- Degree verification for prestigious schools\n- Press articles mentioning the candidate\n- Verifiable figures (events, trade shows mentioned)\n\nSTEP 3 — CRITICAL ANALYSIS based on CV AND web searches:\n1. SELF-DECLARATIONS: CV title vs actual positions held\n2. CONSISTENCY: logical career path, breaks, unexplained changes\n3. STABILITY: actual duration of each position (< 6 months = red alert)\n4. ACCURACY: suspicious figures, vague missions, unverifiable companies\n5. WEB PRESENCE: candidate found/not found, consistency with CV\n6. PRESS/ARTICLES: any verifiable public mention"
-:"ÉTAPE 1 — LIS ATTENTIVEMENT LE CV. Extrais : nom complet, entreprises, postes, dates, diplômes, résultats chiffrés.\n\nÉTAPE 2 — RECHERCHES WEB OBLIGATOIRES. Pour chaque élément clé, effectue des recherches web pour vérifier :\n- Existence réelle des entreprises mentionnées\n- Existence du candidat sur LinkedIn ou le web\n- Vérification des diplômes si grandes écoles\n- Articles de presse mentionnant le candidat\n- Résultats chiffrés vérifiables\n\nÉTAPE 3 — ANALYSE CRITIQUE basée sur le CV ET les recherches web :\n1. AUTO-DÉCLARATIONS : titre CV vs postes réels occupés\n2. COHÉRENCE : fil rouge logique, ruptures, reconversions\n3. STABILITÉ : durée réelle de chaque poste (< 6 mois = alerte rouge)\n4. VÉRACITÉ : résultats chiffrés suspects, missions vagues\n5. PRÉSENCE WEB : candidat trouvé/non trouvé, cohérence avec CV\n6. ARTICLES/PRESSE : toute mention publique vérifiable"}
-
-${lang==="en"?"Answer ONLY with this JSON (all values in English):":"Réponds UNIQUEMENT avec ce JSON (toutes les valeurs en français) :"}
-{
-  "name": "First Last",
-  "title": "${lang==="en"?"Last REAL position (not self-declared title)":"Dernier poste RÉEL (pas titre auto-déclaré)"}",
-  "exp": "${lang==="en"?"X years":"X ans"}",
-  "edu": "${lang==="en"?"Highest degree":"Diplôme le plus élevé"}",
-  "summary": "${lang==="en"?"Critical summary 2-3 sentences with main alerts":"Résumé critique 2-3 phrases avec alertes principales"}",
-  "global": 75,
-  "coherenceScore": 70,
-  "stabiliteScore": 65,
-  "linkedinScore": 75,
-  "aiScore": 30,
-  "coherenceNote": "${lang==="en"?"Career path analysis and breaks detected":"Analyse fil rouge et ruptures"}",
-  "stabiliteNote": "${lang==="en"?"Duration of each position and red flags":"Durée de chaque poste et signaux d'alerte"}",
-  "autoDeclaration": "${lang==="en"?"Yes/No — explanation":"Oui/Non — explication"}",
-  "webVerification": {
-    "entreprisesVerifiees": ["${lang==="en"?"COMPANY ✅ — confirmed":"ENTREPRISE ✅ — confirmée"}"],
-    "presenceWeb": "${lang==="en"?"Found/Not found — details":"Trouvé/Non trouvé — détails"}",
-    "articlesPresse": ["${lang==="en"?"article if found":"article si trouvé"}"],
-    "incoherencesDetectees": ["${lang==="en"?"inconsistency if found":"incohérence si trouvée"}"]
-  },
-  "alertes": ["${lang==="en"?"alert 1":"alerte 1"}"],
-  "scores": [{"criterion": "${lang==="en"?"exact criterion name":"nom exact du critère"}", "score": 75, "why": "${lang==="en"?"justification based on REAL positions AND web verification":"justification basée sur postes réels ET vérification web"}"}],
-  "pros": ["${lang==="en"?"verifiable strength":"point fort vérifiable"}"],
-  "cons": ["${lang==="en"?"weakness or alert":"point faible ou alerte"}"]
-}`}
-      ]}]);
+      const prompt=lang==="en"
+        ?`You are a rigorous HR expert. Answer ONLY in English.\n\nJob location (extracted from job description): ${jd.slice(0,500)}\nEvaluation criteria: ${JSON.stringify(criteria)}\n\nSTEP 1 — Read the CV carefully.\nSTEP 2 — Mandatory web searches: verify companies exist, find candidate online/LinkedIn, find press articles, verify degrees.\nSTEP 3 — Critical analysis: self-declarations (title vs real positions), career consistency, job stability (< 6 months = red alert), accuracy of figures.\nSTEP 4 — GEOGRAPHIC PROXIMITY: Extract the candidate's city/location from the CV. Estimate the distance in km to the job location. Classify as: ON-SITE (< 30km), NEARBY (30-70km), FAR (70-100km), RELOCATION NEEDED (> 100km). Use web search to verify distances if needed.\n\nReply ONLY with this JSON:\n{"name":"Full Name","title":"Last REAL position","exp":"X years","edu":"Highest degree","summary":"Critical summary 2-3 sentences","global":75,"coherenceScore":70,"stabiliteScore":65,"linkedinScore":75,"aiScore":30,"geoScore":90,"candidateCity":"City, Country","jobCity":"Job location city","estimatedDistanceKm":15,"geoCategory":"ON-SITE","geoNote":"Candidate lives in X, job is in Y — estimated Zkm, no relocation needed","coherenceNote":"career path analysis","stabiliteNote":"duration of each position and alerts","autoDeclaration":"Yes/No — explanation","webVerification":{"entreprisesVerifiees":["COMPANY ✅ confirmed"],"presenceWeb":"Found/Not found — details","articlesPresse":["article if found"],"incoherencesDetectees":["inconsistency if found"]},"alertes":["alert 1"],"scores":[{"criterion":"exact criterion name","score":75,"why":"justification"}],"pros":["verifiable strength"],"cons":["weakness or alert"]}`
+        :`Tu es un expert RH rigoureux. Réponds UNIQUEMENT en français.\n\nLocalisation du poste (extraite de la fiche de poste): ${jd.slice(0,500)}\nCritères d'évaluation: ${JSON.stringify(criteria)}\n\nÉTAPE 1 — Lis le CV attentivement.\nÉTAPE 2 — Recherches web obligatoires : vérifie l'existence des entreprises, cherche le candidat en ligne/LinkedIn, trouve des articles de presse, vérifie les diplômes.\nÉTAPE 3 — Analyse critique : auto-déclarations (titre vs postes réels), cohérence du parcours, stabilité (< 6 mois = alerte rouge), véracité des chiffres.\nÉTAPE 4 — PROXIMITÉ GÉOGRAPHIQUE : Extrais la ville/localisation du candidat depuis le CV. Estime la distance en km par rapport au lieu du poste. Classe en : SUR PLACE (< 30km), PROCHE (30-70km), ÉLOIGNÉ (70-100km), DÉMÉNAGEMENT NÉCESSAIRE (> 100km). Utilise une recherche web pour vérifier les distances si nécessaire.\n\nRéponds UNIQUEMENT avec ce JSON:\n{"name":"Nom Prénom","title":"Dernier poste RÉEL","exp":"X ans","edu":"Diplôme le plus élevé","summary":"Résumé critique 2-3 phrases","global":75,"coherenceScore":70,"stabiliteScore":65,"linkedinScore":75,"aiScore":30,"geoScore":90,"candidateCity":"Ville, Pays","jobCity":"Ville du poste","estimatedDistanceKm":15,"geoCategory":"SUR PLACE","geoNote":"Le candidat habite à X, le poste est à Y — distance estimée Zkm, pas de déménagement nécessaire","coherenceNote":"analyse fil rouge","stabiliteNote":"durée de chaque poste et alertes","autoDeclaration":"Oui/Non — explication","webVerification":{"entreprisesVerifiees":["ENTREPRISE ✅ confirmée"],"presenceWeb":"Trouvé/Non trouvé — détails","articlesPresse":["article si trouvé"],"incoherencesDetectees":["incohérence si trouvée"]},"alertes":["alerte 1"],"scores":[{"criterion":"nom exact critère","score":75,"why":"justification"}],"pros":["point fort vérifiable"],"cons":["point faible ou alerte"]}`;
+      const raw=await callAPI(apiKey,[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:prompt}]}],true);
       const c=JSON.parse(raw);
       c.id=Date.now()+Math.random();
       setCandidates(p=>[...p,c].sort((a,b)=>b.global-a.global));
-    }catch(e){setErr("Erreur CV : "+e.message.slice(0,100));}
+    }catch(e){setErr(e.message.slice(0,100));}
     setLoading(false);
   }
 
@@ -333,75 +197,108 @@ ${lang==="en"?"Answer ONLY with this JSON (all values in English):":"Réponds UN
     [...files].filter(f=>f.type==="application/pdf").reduce((p,f)=>p.then(()=>doAnalyzeCV(f)),Promise.resolve());
   }
 
-  const H=({sub,children})=>React.createElement("div",{style:{background:`linear-gradient(135deg,${BL2},${BL})`,padding:"16px 24px",display:"flex",alignItems:"center",justifyContent:"space-between"}},
-    React.createElement("div",null,React.createElement(Logo,{size:40}),sub&&React.createElement("p",{style:{color:"rgba(255,255,255,.75)",margin:"4px 0 0",fontSize:12}},sub)),
-    React.createElement("div",{style:{display:"flex",gap:8}},children)
+  // Composants UI
+  const LangBtn=()=>React.createElement("div",{style:{display:"flex",gap:6}},
+    ["fr","en"].map(l=>React.createElement("button",{key:l,onClick:()=>switchLang(l),style:{padding:"4px 10px",borderRadius:99,border:"2px solid "+(lang===l?"rgba(255,255,255,.8)":"rgba(255,255,255,.3)"),background:lang===l?"rgba(255,255,255,.25)":"transparent",color:"white",fontWeight:700,fontSize:12,cursor:"pointer"}},l==="fr"?"🇫🇷 FR":"🇬🇧 EN"))
   );
-  const Btn=({onClick,children,primary})=>React.createElement("button",{onClick,style:{background:primary?GOLD:"rgba(255,255,255,.15)",color:primary?"#1a4a4e":"white",border:primary?"none":"1px solid rgba(255,255,255,.3)",padding:"7px 14px",borderRadius:9,fontWeight:700,cursor:"pointer",fontSize:13}},children);
+  const LangBtnDark=()=>React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8,justifyContent:"center",marginBottom:18}},
+    React.createElement("span",{style:{fontSize:12,color:"#94a3b8",fontWeight:600}},"🌐"),
+    ["fr","en"].map(l=>React.createElement("button",{key:l,onClick:()=>switchLang(l),style:{padding:"5px 14px",borderRadius:99,border:"2px solid "+(lang===l?BL:"#e2e8f0"),background:lang===l?BL:"#f8fafc",color:lang===l?"#fff":"#64748b",fontWeight:700,fontSize:13,cursor:"pointer"}},l==="fr"?"🇫🇷 FR":"🇬🇧 EN"))
+  );
+  const Hdr=({sub,children})=>React.createElement("div",{style:{background:`linear-gradient(135deg,${BL2},${BL})`,padding:"16px 24px",display:"flex",alignItems:"center",justifyContent:"space-between"}},
+    React.createElement("div",null,React.createElement(Logo,{size:40}),sub&&React.createElement("p",{style:{color:"rgba(255,255,255,.75)",margin:"4px 0 0",fontSize:12}},sub)),
+    React.createElement("div",{style:{display:"flex",gap:8,alignItems:"center"}},children,React.createElement(LangBtn))
+  );
+  const Btn=({onClick,ch})=>React.createElement("button",{onClick,style:{background:"rgba(255,255,255,.15)",color:"white",border:"1px solid rgba(255,255,255,.3)",padding:"7px 14px",borderRadius:9,fontWeight:700,cursor:"pointer",fontSize:13}},ch);
   const Steps=({a})=>React.createElement("div",{style:{display:"flex",alignItems:"center",gap:4,marginBottom:20,justifyContent:"center",flexWrap:"wrap"}},
-    ["1·JD","2·Critères","3·CVs","4·Ranking"].map((s,i)=>React.createElement("div",{key:i,style:{display:"flex",alignItems:"center",gap:4}},
+    [t.s1,t.s2,t.s3,t.s4].map((s,i)=>React.createElement("div",{key:i,style:{display:"flex",alignItems:"center",gap:4}},
       React.createElement("span",{style:{padding:"4px 10px",borderRadius:99,fontSize:11,fontWeight:700,background:i===a?BL:i<a?"#10b981":LIGHT,color:i<=a?"#fff":BL}},s),
       i<3&&React.createElement("span",{style:{color:"#cbd5e1",fontSize:12}},"→")
     ))
   );
+  const DropZone=({onFile,file,accept,multi,onFiles,label,sub,loading:ld})=>{
+    const ref=useRef();
+    const style={border:`2px dashed ${file?"#10b981":"#cbd5e1"}`,borderRadius:14,padding:34,textAlign:"center",cursor:ld?"wait":"pointer",background:file?"#f0fdf4":"#f8fafc",transition:"all .2s"};
+    return React.createElement("div",{
+      onClick:()=>!ld&&ref.current.click(),
+      onDragOver:e=>{e.preventDefault();e.stopPropagation();e.currentTarget.style.border=`2px dashed ${BL}`;e.currentTarget.style.background=LIGHT;},
+      onDragLeave:e=>{e.currentTarget.style.border=`2px dashed ${file?"#10b981":"#cbd5e1"}`;e.currentTarget.style.background=file?"#f0fdf4":"#f8fafc";},
+      onDrop:e=>{e.preventDefault();e.stopPropagation();e.currentTarget.style.border=`2px dashed ${file?"#10b981":"#cbd5e1"}`;e.currentTarget.style.background=file?"#f0fdf4":"#f8fafc";if(ld)return;if(multi&&onFiles)onFiles(e.dataTransfer.files);else if(onFile)onFile(e.dataTransfer.files[0]);},
+      style
+    },
+      React.createElement("div",{style:{fontSize:36,marginBottom:8}},file?"✅":"📄"),
+      file
+        ?[React.createElement("p",{key:"n",style:{color:"#166534",fontWeight:700,margin:0}},file.name||file),React.createElement("p",{key:"s",style:{color:"#86efac",fontSize:12,marginTop:4}},t.jdFileLoaded)]
+        :[React.createElement("p",{key:"l",style:{color:"#334155",fontWeight:700,margin:0}},label),React.createElement("p",{key:"s",style:{color:"#94a3b8",fontSize:13,marginTop:4}},sub)],
+      React.createElement("input",{ref,type:"file",accept,multiple:!!multi,style:{display:"none"},onChange:e=>multi&&onFiles?onFiles(e.target.files):onFile&&onFile(e.target.files[0])})
+    );
+  };
 
-  // Sélecteur de langue réutilisable
-  const LangSwitch=()=>React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8,justifyContent:"center",marginBottom:20}},
-    React.createElement("span",{style:{fontSize:12,color:"#94a3b8",fontWeight:600}},t.langLabel+" :"),
-    ["fr","en"].map(l=>React.createElement("button",{key:l,onClick:()=>switchLang(l),style:{padding:"5px 14px",borderRadius:99,border:`2px solid ${lang===l?BL:"#e2e8f0"}`,background:lang===l?BL:"#f8fafc",color:lang===l?"#fff":"#64748b",fontWeight:700,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",gap:5}},
-      l==="fr"?"🇫🇷 FR":"🇬🇧 EN"
-    ))
-  );
+  const INDICES=[
+    [t.linkedin,"linkedinScore",BL,
+      [[t.coherent,t.partiel,t.incoherent],[["#d1faf5","#025f66"],["#fef5dc","#b07a10"],["#fde8e8","#b91c1c"]]],
+      [t.liDesc0,t.liDesc1,t.liDesc2]],
+    [t.ia,"aiScore",null,
+      [[t.humain,t.mixte,t.iaDetect],[["#d1faf5","#025f66"],["#fef5dc","#b07a10"],["#fde8e8","#b91c1c"]]],
+      [t.iaDesc0,t.iaDesc1,t.iaDesc2]],
+    [t.coherence,"coherenceScore","#8b5cf6",
+      [[t.coherent,t.partiel,t.incoherent],[["#f5f3ff","#6d28d9"],["#fef5dc","#b07a10"],["#fde8e8","#b91c1c"]]],
+      [t.cohDesc0,t.cohDesc1,t.cohDesc2]],
+    [t.stabilite,"stabiliteScore","#f97316",
+      [[t.stable,t.variable,t.instable],[["#fff7ed","#c2410c"],["#fef5dc","#b07a10"],["#fde8e8","#b91c1c"]]],
+      [t.stabDesc0,t.stabDesc1,t.stabDesc2]],
+    [t.geo,"geoScore","#10b981",
+      [[t.geoOnSite,t.geoNear,t.geoFar],[["#f0fdf4","#166534"],["#fef5dc","#b07a10"],["#fde8e8","#b91c1c"]]],
+      [t.geoDesc0,t.geoDesc1,t.geoDesc2]]
+  ];
+
+  // ÉCRAN CLÉ API
   if(!apiOk) return React.createElement("div",{style:{minHeight:"100vh",background:`linear-gradient(160deg,${BL2},${BL} 50%,#0aabb8)`,display:"flex",alignItems:"center",justifyContent:"center",padding:20}},
-    React.createElement("div",{style:{background:"#fff",borderRadius:20,padding:36,maxWidth:480,width:"100%",boxShadow:"0 24px 60px rgba(2,95,102,.25)",textAlign:"center"}},
-      React.createElement(Logo,{size:50}),
-      React.createElement("div",{style:{width:44,height:3,background:GOLD,borderRadius:99,margin:"12px auto 14px"}}),
-      React.createElement("h1",{style:{fontSize:20,fontWeight:800,color:"#1a4a4e",marginBottom:6}},"Sélection & Ranking RH"),
-      React.createElement("p",{style:{color:"#64748b",fontSize:14,marginBottom:22}},"Entrez votre clé API Anthropic pour activer l'IA"),
-      React.createElement("input",{value:apiKey,onChange:e=>setApiKey(e.target.value),placeholder:"sk-ant-api03-...",style:{width:"100%",padding:"12px 14px",border:`2px solid ${apiErr?"#fca5a5":"#e2e8f0"}`,borderRadius:12,fontSize:13,outline:"none",boxSizing:"border-box",marginBottom:8,fontFamily:"monospace"},onKeyDown:e=>e.key==="Enter"&&testKey()}),
+    React.createElement("div",{style:{background:"#fff",borderRadius:20,padding:36,maxWidth:460,width:"100%",boxShadow:"0 24px 60px rgba(2,95,102,.25)",textAlign:"center"}},
+      React.createElement(Logo,{size:48}),
+      React.createElement("div",{style:{width:40,height:3,background:GOLD,borderRadius:99,margin:"12px auto 14px"}}),
+      React.createElement(LangBtnDark),
+      React.createElement("h1",{style:{fontSize:20,fontWeight:800,color:"#1a4a4e",marginBottom:6}},t.appTitle),
+      React.createElement("p",{style:{color:"#64748b",fontSize:14,marginBottom:22}},t.apiSub),
+      React.createElement("input",{value:apiKey,onChange:e=>setApiKey(e.target.value),placeholder:"sk-ant-api03-...",onKeyDown:e=>e.key==="Enter"&&testKey(),style:{width:"100%",padding:"12px 14px",border:`2px solid ${apiErr?"#fca5a5":"#e2e8f0"}`,borderRadius:12,fontSize:13,outline:"none",boxSizing:"border-box",marginBottom:8,fontFamily:"monospace"}}),
       apiErr&&React.createElement("p",{style:{color:"#dc2626",fontSize:12,marginBottom:8,textAlign:"left"}},apiErr),
-      React.createElement("p",{style:{color:"#94a3b8",fontSize:11,marginBottom:14,textAlign:"left"}},"🔒 Clé stockée dans votre navigateur uniquement. Obtenez-la sur ",React.createElement("a",{href:"https://console.anthropic.com",target:"_blank",style:{color:BL}},"console.anthropic.com")),
-      React.createElement("button",{onClick:testKey,disabled:!apiKey.trim()||testingKey,style:{width:"100%",padding:14,background:apiKey.trim()?`linear-gradient(135deg,${BL2},${BL})`:"#cbd5e1",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer"}},testingKey?"⏳ Vérification...":"✨ Activer l'IA"),
-      React.createElement("button",{onClick:()=>{setApiOk(true);setPage("ranking");},style:{marginTop:10,width:"100%",padding:10,background:"transparent",color:"#94a3b8",border:"1px solid #e2e8f0",borderRadius:12,fontSize:13,cursor:"pointer"}},"Voir la démo sans clé API")
+      React.createElement("p",{style:{color:"#94a3b8",fontSize:11,marginBottom:14,textAlign:"left"}},t.apiNote,React.createElement("a",{href:"https://console.anthropic.com",target:"_blank",style:{color:BL}},"console.anthropic.com")),
+      React.createElement("button",{onClick:testKey,disabled:!apiKey.trim()||testing,style:{width:"100%",padding:14,background:apiKey.trim()?`linear-gradient(135deg,${BL2},${BL})`:"#cbd5e1",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer"}},testing?t.apiChecking:t.apiBtn)
     )
   );
 
   // PAGE JD
   if(page==="jd") return React.createElement("div",{style:{minHeight:"100vh",background:`linear-gradient(160deg,${BL2},${BL} 50%,#0aabb8)`,display:"flex",alignItems:"center",justifyContent:"center",padding:20}},
     React.createElement("div",{style:{background:"#fff",borderRadius:20,padding:36,maxWidth:600,width:"100%",boxShadow:"0 24px 60px rgba(2,95,102,.25)"}},
-      React.createElement("div",{style:{textAlign:"center",marginBottom:20}},React.createElement(Logo,{size:48}),React.createElement("div",{style:{width:40,height:3,background:GOLD,borderRadius:99,margin:"10px auto 10px"}}),React.createElement("h1",{style:{fontSize:20,fontWeight:800,color:"#1a4a4e",margin:"0 0 4px"}},"Sélection & Ranking RH"),React.createElement("p",{style:{color:"#64748b",fontSize:13,margin:0}},"Importez votre fiche de poste")),
+      React.createElement("div",{style:{textAlign:"center",marginBottom:16}},
+        React.createElement(Logo,{size:46}),
+        React.createElement("div",{style:{width:40,height:3,background:GOLD,borderRadius:99,margin:"10px auto 10px"}}),
+        React.createElement("h1",{style:{fontSize:20,fontWeight:800,color:"#1a4a4e",margin:"0 0 4px"}},t.appTitle),
+        React.createElement("p",{style:{color:"#64748b",fontSize:13,margin:0}},t.appSub)
+      ),
+      React.createElement(LangBtnDark),
       React.createElement(Steps,{a:0}),
       React.createElement("div",{style:{display:"flex",gap:8,marginBottom:12}},
-        [["text","✏️ Texte"],["pdf","📄 Fichier"]].map(([m,l])=>React.createElement("button",{key:m,onClick:()=>setJdMode(m),style:{flex:1,padding:"9px 0",borderRadius:10,border:`2px solid ${jdMode===m?BL:"#e2e8f0"}`,background:jdMode===m?LIGHT:"#f8fafc",color:jdMode===m?BL:"#64748b",fontWeight:600,fontSize:13,cursor:"pointer"}},l))
+        [["text",t.jdText],["pdf",t.jdFile]].map(([m,l])=>React.createElement("button",{key:m,onClick:()=>setJdMode(m),style:{flex:1,padding:"9px 0",borderRadius:10,border:`2px solid ${jdMode===m?BL:"#e2e8f0"}`,background:jdMode===m?LIGHT:"#f8fafc",color:jdMode===m?BL:"#64748b",fontWeight:600,fontSize:13,cursor:"pointer"}},l))
       ),
-              jdMode==="text"
-        ?React.createElement("textarea",{value:jd,onChange:e=>setJd(e.target.value),placeholder:"Collez votre job description...",style:{width:"100%",minHeight:180,padding:14,border:"2px solid #e2e8f0",borderRadius:12,fontSize:14,resize:"vertical",outline:"none",boxSizing:"border-box",fontFamily:"inherit",lineHeight:1.6},onFocus:e=>e.target.style.border=`2px solid ${BL}`,onBlur:e=>e.target.style.border="2px solid #e2e8f0"})
-        :React.createElement("div",{
-            onClick:()=>jdRef.current.click(),
-            onDragOver:e=>{e.preventDefault();e.stopPropagation();e.currentTarget.style.border=`2px dashed ${BL}`;e.currentTarget.style.background=LIGHT;},
-            onDragLeave:e=>{e.currentTarget.style.border=`2px dashed ${jdFile?"#10b981":"#cbd5e1"}`;e.currentTarget.style.background=jdFile?"#f0fdf4":"#f8fafc";},
-            onDrop:e=>{e.preventDefault();e.stopPropagation();e.currentTarget.style.border=`2px dashed ${jdFile?"#10b981":"#cbd5e1"}`;e.currentTarget.style.background=jdFile?"#f0fdf4":"#f8fafc";const f=e.dataTransfer.files[0];if(f)handleJdFile(f);},
-            style:{border:`2px dashed ${jdFile?"#10b981":"#cbd5e1"}`,borderRadius:12,padding:36,textAlign:"center",cursor:"pointer",background:jdFile?"#f0fdf4":"#f8fafc",transition:"all .2s"}},
-          jdFile?[React.createElement("div",{key:"i",style:{fontSize:32,marginBottom:6}},"✅"),React.createElement("p",{key:"n",style:{color:"#166534",fontWeight:700,margin:0}},jdFile.name),React.createElement("p",{key:"s",style:{color:"#86efac",fontSize:12,marginTop:4}},"Cliquez ou déposez un autre fichier pour changer")]
-                :[React.createElement("div",{key:"i",style:{fontSize:32,marginBottom:6}},"📄"),React.createElement("p",{key:"t",style:{color:"#334155",fontWeight:700,margin:0}},"Glissez-déposez votre fichier ici"),React.createElement("p",{key:"s",style:{color:"#94a3b8",fontSize:13,marginTop:4}},"ou cliquez pour sélectionner · PDF ou Word (.docx)")],
-          React.createElement("input",{ref:jdRef,type:"file",accept:".pdf,.doc,.docx",style:{display:"none"},onChange:e=>handleJdFile(e.target.files[0])})
-        ),
+      jdMode==="text"
+        ?React.createElement("textarea",{value:jd,onChange:e=>setJd(e.target.value),placeholder:t.jdPlaceholder,style:{width:"100%",minHeight:180,padding:14,border:"2px solid #e2e8f0",borderRadius:12,fontSize:14,resize:"vertical",outline:"none",boxSizing:"border-box",fontFamily:"inherit",lineHeight:1.6},onFocus:e=>e.target.style.border=`2px solid ${BL}`,onBlur:e=>e.target.style.border="2px solid #e2e8f0"})
+        :React.createElement(DropZone,{onFile:handleJdFile,file:jdFile,accept:".pdf,.doc,.docx",label:t.jdDrop,sub:t.jdDropSub}),
       err&&React.createElement("p",{style:{color:"#dc2626",fontSize:12,margin:"8px 0 0"}},err),
       loading&&React.createElement("div",{style:{marginTop:10,padding:12,background:LIGHT,borderRadius:10,color:BL,fontSize:13,fontWeight:600}},"⏳ "+loadMsg),
-      React.createElement("button",{onClick:doAnalyzeJD,disabled:loading||!jd.trim(),style:{marginTop:14,width:"100%",padding:14,background:loading||!jd.trim()?"#cbd5e1":`linear-gradient(135deg,${BL2},${BL})`,color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer"}},loading?"⏳ Analyse...":"✨ Analyser la fiche de poste"),
-      React.createElement("button",{onClick:()=>setPage("ranking"),style:{marginTop:8,width:"100%",padding:10,background:"transparent",color:"#94a3b8",border:"1px solid #e2e8f0",borderRadius:12,fontSize:13,cursor:"pointer"}},"→ Voir la démo")
+      React.createElement("button",{onClick:doAnalyzeJD,disabled:loading||(jdMode==="text"&&!jd.trim())||(jdMode==="pdf"&&!jdFile),style:{marginTop:14,width:"100%",padding:14,background:loading||(jdMode==="text"&&!jd.trim())||(jdMode==="pdf"&&!jdFile)?"#cbd5e1":`linear-gradient(135deg,${BL2},${BL})`,color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer"}},loading?t.jdAnalyzing:t.jdBtn)
     )
   );
 
   // PAGE CRITÈRES
   if(page==="criteria") return React.createElement("div",{style:{minHeight:"100vh",background:"#f0f9fa"}},
-    React.createElement(H,{sub:"Étape 2 — Validation des critères"},React.createElement(Btn,{onClick:()=>setPage("jd")},"↩ JD")),
+    React.createElement(Hdr,{sub:t.s2},React.createElement(Btn,{onClick:()=>setPage("jd"),ch:t.btnBackJD})),
     React.createElement("div",{style:{maxWidth:680,margin:"0 auto",padding:"24px 18px",boxSizing:"border-box"}},
       React.createElement(Steps,{a:1}),
       React.createElement("div",{style:{background:"#fff",borderRadius:16,padding:24,boxShadow:"0 2px 12px rgba(3,131,140,.1)",marginBottom:14}},
         React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10,marginBottom:16}},
-          React.createElement("div",{style:{width:38,height:38,borderRadius:10,background:`linear-gradient(135deg,${BL},${GOLD})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}},"🎯"),
-          React.createElement("div",null,React.createElement("h2",{style:{margin:0,fontSize:16,fontWeight:800,color:"#1a4a4e"}},"Critères détectés"),React.createElement("p",{style:{margin:"2px 0 0",fontSize:12,color:"#64748b"}},"Modifiez si nécessaire (total = 100%)"))
+          React.createElement("div",{style:{width:38,height:38,borderRadius:10,background:`linear-gradient(135deg,${BL},${GOLD})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}},"🎯"),
+          React.createElement("div",null,React.createElement("h2",{style:{margin:0,fontSize:16,fontWeight:800,color:"#1a4a4e"}},t.critTitle),React.createElement("p",{style:{margin:"2px 0 0",fontSize:12,color:"#64748b"}},t.critSub))
         ),
         criteria.map((cr,i)=>React.createElement("div",{key:i,style:{padding:"12px 14px",borderRadius:12,border:`2px solid ${COLORS[i%COLORS.length]}22`,background:COLORS[i%COLORS.length]+"08",marginBottom:8}},
           React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8,marginBottom:5}},
@@ -414,64 +311,42 @@ ${lang==="en"?"Answer ONLY with this JSON (all values in English):":"Réponds UN
           React.createElement("div",{style:{background:"#e6f5f6",borderRadius:99,height:4,overflow:"hidden"}},React.createElement("div",{style:{width:`${Math.min(cr.weight,100)}%`,background:COLORS[i%COLORS.length],height:"100%",borderRadius:99}}))
         )),
         React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",borderRadius:10,background:totalW===100?"#f0fdf4":"#fef2f2",border:`1px solid ${totalW===100?"#bbf7d0":"#fecaca"}`,marginTop:8}},
-          React.createElement("span",{style:{fontWeight:700,color:totalW===100?"#166534":"#dc2626",fontSize:13}},totalW===100?"✅ Total 100% — parfait !":"⚠️ Total : "+totalW+"%"),
-          React.createElement("button",{onClick:()=>setCriteria(p=>[...p,{name:"Nouveau critère",weight:0}]),style:{background:BL,color:"#fff",border:"none",borderRadius:8,padding:"5px 12px",cursor:"pointer",fontWeight:600,fontSize:12}},"+ Ajouter")
+          React.createElement("span",{style:{fontWeight:700,color:totalW===100?"#166534":"#dc2626",fontSize:13}},totalW===100?t.critOk:t.critWarn+totalW+"%"),
+          React.createElement("button",{onClick:()=>setCriteria(p=>[...p,{name:lang==="fr"?"Nouveau critère":"New criterion",weight:0}]),style:{background:BL,color:"#fff",border:"none",borderRadius:8,padding:"5px 12px",cursor:"pointer",fontWeight:600,fontSize:12}},t.critAdd)
         )
       ),
-      React.createElement("button",{onClick:()=>setPage("cvs"),disabled:totalW!==100,style:{width:"100%",padding:14,background:totalW===100?`linear-gradient(135deg,${BL2},${BL})`:"#cbd5e1",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:totalW===100?"pointer":"not-allowed"}},"Valider et passer aux CVs →")
+      React.createElement("button",{onClick:()=>setPage("cvs"),disabled:totalW!==100,style:{width:"100%",padding:14,background:totalW===100?`linear-gradient(135deg,${BL2},${BL})`:"#cbd5e1",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:totalW===100?"pointer":"not-allowed"}},t.critNext)
     )
   );
 
   // PAGE CVS
   if(page==="cvs") return React.createElement("div",{style:{minHeight:"100vh",background:"#f0f9fa"}},
-    React.createElement(H,{sub:"Étape 3 — Dépôt des CVs"},React.createElement(Btn,{onClick:()=>setPage("criteria")},"↩ Critères")),
+    React.createElement(Hdr,{sub:t.cvSub},React.createElement(Btn,{onClick:()=>setPage("criteria"),ch:t.cvBack})),
     React.createElement("div",{style:{maxWidth:680,margin:"0 auto",padding:"24px 18px",boxSizing:"border-box"}},
       React.createElement(Steps,{a:2}),
       React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:8,marginBottom:14}},criteria.map((c,i)=>React.createElement("span",{key:i,style:{background:COLORS[i%COLORS.length]+"1a",color:COLORS[i%COLORS.length],padding:"5px 12px",borderRadius:99,fontSize:12,fontWeight:600,border:`1px solid ${COLORS[i%COLORS.length]}33`}},c.name+" ("+c.weight+"%)") )),
       err&&React.createElement("div",{style:{padding:12,background:"#fef2f2",border:"1px solid #fecaca",borderRadius:10,color:"#dc2626",fontSize:13,marginBottom:10}},err),
       loading&&React.createElement("div",{style:{padding:12,background:LIGHT,borderRadius:10,color:BL,fontSize:13,fontWeight:600,marginBottom:10}},"⏳ "+loadMsg),
-      React.createElement("div",{
-        onClick:()=>!loading&&cvRef.current.click(),
-        onDragOver:e=>{e.preventDefault();e.stopPropagation();if(!loading){e.currentTarget.style.border=`2px dashed ${BL}`;e.currentTarget.style.background=LIGHT;}},
-        onDragLeave:e=>{e.currentTarget.style.border=`2px dashed ${BL}55`;e.currentTarget.style.background="#fff";},
-        onDrop:e=>{
-          e.preventDefault();e.stopPropagation();
-          e.currentTarget.style.border=`2px dashed ${BL}55`;e.currentTarget.style.background="#fff";
-          if(!loading)pickCVs(e.dataTransfer.files);
-        },
-        style:{border:`2px dashed ${BL}55`,borderRadius:16,padding:36,textAlign:"center",cursor:loading?"wait":"pointer",background:"#fff",marginBottom:12,transition:"all .2s"}},
-        React.createElement("div",{style:{fontSize:38,marginBottom:6}},"📄"),
-        React.createElement("p",{style:{color:"#334155",fontWeight:700,margin:0}},"Glissez-déposez vos CVs ici"),
-        React.createElement("p",{style:{color:"#94a3b8",fontSize:13,marginTop:4}},"ou cliquez pour sélectionner · PDF uniquement · Plusieurs fichiers acceptés"),
-        React.createElement("input",{ref:cvRef,type:"file",accept:".pdf",multiple:true,style:{display:"none"},onChange:e=>pickCVs(e.target.files)})
-      ),
-      candidates.length>0&&React.createElement("button",{onClick:()=>setPage("ranking"),style:{width:"100%",padding:13,background:`linear-gradient(135deg,${BL2},${BL})`,color:"#fff",border:"none",borderRadius:12,fontSize:14,fontWeight:700,cursor:"pointer"}},`🏆 Voir le ranking (${candidates.length} candidats) →`)
+      React.createElement(DropZone,{onFiles:pickCVs,file:null,accept:".pdf",multi:true,label:t.cvDrop,sub:t.cvDropSub,loading}),
+      candidates.length>0&&React.createElement("button",{onClick:()=>setPage("ranking"),style:{marginTop:12,width:"100%",padding:13,background:`linear-gradient(135deg,${BL2},${BL})`,color:"#fff",border:"none",borderRadius:12,fontSize:14,fontWeight:700,cursor:"pointer"}},t.cvBtn+" ("+candidates.length+" "+t.candidats+") →")
     )
   );
 
   // PAGE RANKING
-  const INDICES=[
-    ["🔗","LinkedIn","linkedinScore",BL,[["Cohérent","Partiel","Incohérent"],[["#d1faf5","#025f66"],["#fef5dc","#b07a10"],["#fde8e8","#b91c1c"]]]],
-    ["🤖","IA","aiScore",null,[["Humain","Mixte","IA détecté"],[["#d1faf5","#025f66"],["#fef5dc","#b07a10"],["#fde8e8","#b91c1c"]]]],
-    ["🧭","Cohérence","coherenceScore","#8b5cf6",[["Cohérent","Partiel","Incohérent"],[["#f5f3ff","#6d28d9"],["#fef5dc","#b07a10"],["#fde8e8","#b91c1c"]]]],
-    ["📌","Stabilité","stabiliteScore","#f97316",[["Stable","Variable","Instable"],[["#fff7ed","#c2410c"],["#fef5dc","#b07a10"],["#fde8e8","#b91c1c"]]]]
-  ];
-
   return React.createElement("div",{style:{minHeight:"100vh",background:"#f0f9fa"}},
-    React.createElement(H,{sub:`${candidates.length} candidats`},
-      React.createElement(Btn,{onClick:()=>setPage("cvs")},"+ CVs"),
-      React.createElement(Btn,{onClick:()=>setPage("jd")},"↩ Nouvelle JD"),
-      React.createElement(Btn,{onClick:()=>{localStorage.removeItem("bl_key");setApiOk(false);}},"🔑 Clé API")
+    React.createElement(Hdr,{sub:candidates.length+" "+t.candidats},
+      React.createElement(Btn,{onClick:()=>setPage("cvs"),ch:t.btnCVs}),
+      React.createElement(Btn,{onClick:()=>setPage("jd"),ch:t.btnJD}),
+      React.createElement(Btn,{onClick:()=>{localStorage.removeItem("bl_key");setApiOk(false);},ch:t.btnKey})
     ),
     React.createElement("div",{style:{background:"#fff",borderBottom:"2px solid #e6f5f6",padding:"0 22px",display:"flex",overflowX:"auto"}},
-      [["rank","🏆 Ranking"],["analyse","📊 Analyse"],["compare","⚖️ Comparer"],["notes","📝 Notes"]].map(([t,l])=>
-        React.createElement("button",{key:t,onClick:()=>setTab(t),style:{padding:"12px 18px",border:"none",background:"none",fontWeight:600,fontSize:13,cursor:"pointer",color:tab===t?BL:"#94a3b8",borderBottom:tab===t?`3px solid ${GOLD}`:"3px solid transparent",whiteSpace:"nowrap"}},l)
+      [[" rank",t.tabRank],["analyse",t.tabAnalyse],["compare",t.tabCompare],["notes",t.tabNotes]].map(([k,l])=>
+        React.createElement("button",{key:k,onClick:()=>setTab(k.trim()),style:{padding:"12px 18px",border:"none",background:"none",fontWeight:600,fontSize:13,cursor:"pointer",color:tab===k.trim()?BL:"#94a3b8",borderBottom:tab===k.trim()?`3px solid ${GOLD}`:"3px solid transparent",whiteSpace:"nowrap"}},l)
       )
     ),
     React.createElement("div",{style:{maxWidth:940,margin:"0 auto",padding:"20px 16px",boxSizing:"border-box"}},
 
-      // RANKING TAB
-      // Textes traduits dans les fiches candidats
+      // ── RANKING ──
       tab==="rank"&&React.createElement(React.Fragment,null,...ranked.map((c,i)=>
         React.createElement("div",{key:c.id,onClick:()=>setOpen(open===c.id?null:c.id),style:{background:"#fff",borderRadius:14,marginBottom:10,overflow:"hidden",boxShadow:"0 2px 10px rgba(3,131,140,.08)",cursor:"pointer",borderLeft:`5px solid ${COLORS[i%COLORS.length]}`,outline:open===c.id?`2px solid ${BL}`:"2px solid transparent"}},
           React.createElement("div",{style:{padding:"14px 18px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}},
@@ -481,51 +356,85 @@ ${lang==="en"?"Answer ONLY with this JSON (all values in English):":"Réponds UN
               React.createElement("p",{style:{margin:0,fontWeight:700,color:"#1a4a4e",fontSize:14}},c.name),
               React.createElement("p",{style:{margin:"2px 0 0",fontSize:11,color:"#64748b"}},c.title)
             ),
-            React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:3,minWidth:148}},
-              INDICES.map(([icon,label,key,color,[labels,cols]])=>{
+            React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:5,minWidth:200}},
+              INDICES.map(([label,key,color,[labels,cols],descs])=>{
                 const score=c[key]||0;
                 const col=key==="aiScore"?score>=60?"#ef4444":score>=30?GOLD:"#10b981":(color||BL);
-                const idx=score>=75?0:score>=55?1:2;
-                return React.createElement("div",{key:label,style:{display:"flex",alignItems:"center",gap:4}},
-                  React.createElement("span",{style:{fontSize:10,color:"#94a3b8",width:66}},icon+" "+label),
-                  React.createElement("div",{style:{background:"#e6f5f6",borderRadius:99,height:4,width:32,overflow:"hidden"}},React.createElement("div",{style:{width:`${score}%`,background:col,height:"100%",borderRadius:99}})),
-                  React.createElement("span",{style:{fontSize:10,fontWeight:700,color:col,width:22}},score+"%"),
-                  React.createElement("span",{style:{background:cols[idx][0],color:cols[idx][1],padding:"2px 6px",borderRadius:99,fontSize:9,fontWeight:700}},labels[idx])
+                // Pour IA : score élevé = mauvais (IA), score bas = bon (humain)
+                const idx=key==="aiScore"?(score>=60?2:score>=30?1:0):(score>=75?0:score>=55?1:2);
+                const desc=descs?descs[idx]:"";
+                return React.createElement("div",{key:label,style:{background:"#f8fafc",borderRadius:8,padding:"6px 10px"}},
+                  React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}},
+                    React.createElement("span",{style:{fontSize:11,fontWeight:700,color:"#334155"}},label),
+                    React.createElement("div",{style:{display:"flex",alignItems:"center",gap:5}},
+                      React.createElement("span",{style:{fontSize:11,fontWeight:800,color:col}},score+"%"),
+                      React.createElement("span",{style:{background:cols[idx][0],color:cols[idx][1],padding:"2px 7px",borderRadius:99,fontSize:9,fontWeight:700}},labels[idx])
+                    )
+                  ),
+                  React.createElement("div",{style:{background:"#e2e8f0",borderRadius:99,height:5,overflow:"hidden",marginBottom:3}},
+                    React.createElement("div",{style:{width:`${score}%`,background:col,height:"100%",borderRadius:99,transition:"width .3s"}})
+                  ),
+                  desc&&React.createElement("p",{style:{margin:0,fontSize:10,color:"#64748b",fontStyle:"italic"}},desc)
                 );
               })
             ),
             React.createElement("div",{style:{fontSize:22,fontWeight:800,color:BL}},c.global,React.createElement("span",{style:{fontSize:10,fontWeight:400}},"/100")),
-            React.createElement(Badge,{score:c.global}),
+            React.createElement("span",{style:{background:c.global>=80?"#d1faf5":c.global>=60?"#fef5dc":"#fde8e8",color:c.global>=80?"#025f66":c.global>=60?"#b07a10":"#b91c1c",padding:"3px 10px",borderRadius:99,fontSize:11,fontWeight:700}},c.global>=80?t.excellent:c.global>=60?t.bon:t.faible),
             React.createElement("span",{style:{color:"#94a3b8",fontSize:12}},open===c.id?"▲":"▼")
           ),
           React.createElement("div",{style:{padding:"0 18px 8px"}},React.createElement("div",{style:{background:"#e6f5f6",borderRadius:99,height:4,overflow:"hidden"}},React.createElement("div",{style:{width:`${c.global}%`,background:`linear-gradient(90deg,${BL},${GOLD})`,height:"100%",borderRadius:99}}))),
           open===c.id&&React.createElement("div",{style:{padding:"0 18px 18px",borderTop:`1px solid ${LIGHT}`}},
             React.createElement("p",{style:{color:"#64748b",fontSize:13,lineHeight:1.7,marginTop:12}},c.summary),
-                          c.autoDeclaration&&c.autoDeclaration.toLowerCase().startsWith("oui")||c.autoDeclaration&&c.autoDeclaration.toLowerCase().startsWith("yes")?React.createElement("div",{style:{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:10,padding:"10px 14px",marginTop:10,display:"flex",alignItems:"flex-start",gap:8}},React.createElement("span",{style:{fontSize:16,flexShrink:0}},"🚨"),React.createElement("div",null,React.createElement("p",{style:{margin:0,fontWeight:700,fontSize:12,color:"#dc2626"}},t.autoDecl),React.createElement("p",{style:{margin:"3px 0 0",fontSize:12,color:"#dc2626"}},c.autoDeclaration))):null,
-              c.webVerification&&React.createElement("div",{style:{background:"#f0f9fa",border:`1px solid ${BL}33`,borderRadius:10,padding:"12px 14px",marginTop:10}},
-                React.createElement("p",{style:{margin:"0 0 8px",fontWeight:700,fontSize:12,color:BL}},t.webVerif),
-                c.webVerification.presenceWeb&&React.createElement("p",{style:{margin:"0 0 6px",fontSize:12,color:"#334155"}},t.webPerson+c.webVerification.presenceWeb),
-                c.webVerification.entreprisesVerifiees&&c.webVerification.entreprisesVerifiees.length>0&&React.createElement("div",{style:{marginBottom:6}},React.createElement("p",{style:{margin:"0 0 4px",fontSize:11,fontWeight:700,color:"#64748b"}},t.webCompanies),...c.webVerification.entreprisesVerifiees.map((e,j)=>React.createElement("p",{key:j,style:{margin:"2px 0",fontSize:12,color:"#334155"}},"• "+e))),
-                c.webVerification.articlesPresse&&c.webVerification.articlesPresse.length>0&&React.createElement("div",{style:{marginBottom:6}},React.createElement("p",{style:{margin:"0 0 4px",fontSize:11,fontWeight:700,color:"#64748b"}},t.webPress),...c.webVerification.articlesPresse.map((a,j)=>React.createElement("p",{key:j,style:{margin:"2px 0",fontSize:12,color:"#334155"}},"📰 "+a))),
-                c.webVerification.incoherencesDetectees&&c.webVerification.incoherencesDetectees.length>0&&React.createElement("div",null,React.createElement("p",{style:{margin:"0 0 4px",fontSize:11,fontWeight:700,color:"#dc2626"}},t.webIncoh),...c.webVerification.incoherencesDetectees.map((inc,j)=>React.createElement("p",{key:j,style:{margin:"2px 0",fontSize:12,color:"#dc2626"}},"• "+inc)))
-              ),
-              c.alertes&&c.alertes.length>0&&React.createElement("div",{style:{background:"#fff7ed",border:"1px solid #fed7aa",borderRadius:10,padding:"10px 14px",marginTop:8}},React.createElement("p",{style:{margin:"0 0 6px",fontWeight:700,fontSize:12,color:"#c2410c"}},t.alertes),...c.alertes.map((a,j)=>React.createElement("p",{key:j,style:{margin:"3px 0",fontSize:12,color:"#c2410c"}},"• "+a))),
-                          React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:10}},
-                React.createElement("div",{style:{background:"#f5f3ff",borderRadius:10,padding:12,border:"1px solid #e9d5ff"}},
-                  React.createElement("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:4}},React.createElement("p",{style:{margin:0,fontWeight:700,fontSize:11,color:"#6d28d9"}},t.coherence),React.createElement("span",{style:{fontWeight:800,color:"#8b5cf6"}},(c.coherenceScore||0)+"%")),
-                  React.createElement("div",{style:{background:"#e9d5ff",borderRadius:99,height:4,overflow:"hidden",marginBottom:5}},React.createElement("div",{style:{width:`${c.coherenceScore||0}%`,background:"#8b5cf6",height:"100%",borderRadius:99}})),
-                  React.createElement("p",{style:{margin:0,fontSize:11,color:"#6d28d9",lineHeight:1.5}},c.coherenceNote||"")
+            // Géolocalisation
+            c.geoNote&&React.createElement("div",{style:{background:c.geoCategory&&(c.geoCategory.includes("SUR PLACE")||c.geoCategory.includes("ON-SITE"))?"#f0fdf4":c.geoCategory&&(c.geoCategory.includes("PROCHE")||c.geoCategory.includes("NEARBY"))?"#fef5dc":c.geoCategory&&(c.geoCategory.includes("ÉLOIGNÉ")||c.geoCategory.includes("FAR"))?"#fff7ed":"#fef2f2",border:`1px solid ${c.geoCategory&&(c.geoCategory.includes("SUR PLACE")||c.geoCategory.includes("ON-SITE"))?"#bbf7d0":c.geoCategory&&(c.geoCategory.includes("PROCHE")||c.geoCategory.includes("NEARBY"))?"#fde68a":c.geoCategory&&(c.geoCategory.includes("ÉLOIGNÉ")||c.geoCategory.includes("FAR"))?"#fed7aa":"#fecaca"}`,borderRadius:10,padding:"10px 14px",marginTop:10,display:"flex",alignItems:"flex-start",gap:10}},
+              React.createElement("span",{style:{fontSize:18,flexShrink:0}},"📍"),
+              React.createElement("div",{style:{flex:1}},
+                React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8,marginBottom:4}},
+                  React.createElement("p",{style:{margin:0,fontWeight:700,fontSize:12,color:"#334155"}},t.geoLabel),
+                  c.estimatedDistanceKm!=null&&React.createElement("span",{style:{background:"#1a4a4e",color:"#fff",padding:"2px 8px",borderRadius:99,fontSize:11,fontWeight:700}},c.estimatedDistanceKm+"km"),
+                  c.geoCategory&&React.createElement("span",{style:{background:c.geoCategory.includes("SUR PLACE")||c.geoCategory.includes("ON-SITE")?"#166534":c.geoCategory.includes("PROCHE")||c.geoCategory.includes("NEARBY")?"#b07a10":c.geoCategory.includes("ÉLOIGNÉ")||c.geoCategory.includes("FAR")?"#c2410c":"#b91c1c",color:"#fff",padding:"2px 10px",borderRadius:99,fontSize:11,fontWeight:700}},c.geoCategory)
                 ),
-                React.createElement("div",{style:{background:"#fff7ed",borderRadius:10,padding:12,border:"1px solid #fed7aa"}},
-                  React.createElement("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:4}},React.createElement("p",{style:{margin:0,fontWeight:700,fontSize:11,color:"#c2410c"}},t.stabilite),React.createElement("span",{style:{fontWeight:800,color:"#f97316"}},(c.stabiliteScore||0)+"%")),
-                  React.createElement("div",{style:{background:"#fed7aa",borderRadius:99,height:4,overflow:"hidden",marginBottom:5}},React.createElement("div",{style:{width:`${c.stabiliteScore||0}%`,background:"#f97316",height:"100%",borderRadius:99}})),
-                  React.createElement("p",{style:{margin:0,fontSize:11,color:"#c2410c",lineHeight:1.5}},c.stabiliteNote||"")
-                )
+                c.candidateCity&&c.jobCity&&React.createElement("p",{style:{margin:"0 0 3px",fontSize:12,color:"#64748b"}},"🏠 "+c.candidateCity+" → 🏢 "+c.jobCity),
+                React.createElement("p",{style:{margin:0,fontSize:12,color:"#334155"}},c.geoNote)
+              )
+            ),
+            c.autoDeclaration&&(c.autoDeclaration.toLowerCase().startsWith("oui")||c.autoDeclaration.toLowerCase().startsWith("yes"))&&
+              React.createElement("div",{style:{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:10,padding:"10px 14px",marginTop:10,display:"flex",gap:8}},
+                React.createElement("span",{style:{fontSize:16,flexShrink:0}},"🚨"),
+                React.createElement("div",null,React.createElement("p",{style:{margin:0,fontWeight:700,fontSize:12,color:"#dc2626"}},t.autoDecl),React.createElement("p",{style:{margin:"3px 0 0",fontSize:12,color:"#dc2626"}},c.autoDeclaration))
               ),
-              React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:10}},
-                React.createElement("div",{style:{background:"#f0fdf4",borderRadius:10,padding:12}},React.createElement("p",{style:{margin:"0 0 5px",fontWeight:700,fontSize:11,color:"#166534"}},t.pros),...(c.pros||[]).map((s,j)=>React.createElement("p",{key:j,style:{margin:"3px 0",fontSize:12,color:"#15803d"}},"• "+s))),
-                React.createElement("div",{style:{background:"#fff7ed",borderRadius:10,padding:12}},React.createElement("p",{style:{margin:"0 0 5px",fontWeight:700,fontSize:11,color:"#9a3412"}},t.cons),...(c.cons||[]).map((w,j)=>React.createElement("p",{key:j,style:{margin:"3px 0",fontSize:12,color:"#c2410c"}},"• "+w)))
+            // Vérification web
+            c.webVerification&&React.createElement("div",{style:{background:"#f0f9fa",border:`1px solid ${BL}33`,borderRadius:10,padding:"12px 14px",marginTop:10}},
+              React.createElement("p",{style:{margin:"0 0 8px",fontWeight:700,fontSize:12,color:BL}},t.webVerif),
+              c.webVerification.presenceWeb&&React.createElement("p",{style:{margin:"0 0 6px",fontSize:12,color:"#334155"}},"👤 "+c.webVerification.presenceWeb),
+              c.webVerification.entreprisesVerifiees?.length>0&&React.createElement("div",{style:{marginBottom:6}},React.createElement("p",{style:{margin:"0 0 4px",fontSize:11,fontWeight:700,color:"#64748b"}},t.webCompanies),...c.webVerification.entreprisesVerifiees.map((e,j)=>React.createElement("p",{key:j,style:{margin:"2px 0",fontSize:12,color:"#334155"}},"• "+e))),
+              c.webVerification.articlesPresse?.length>0&&React.createElement("div",{style:{marginBottom:6}},React.createElement("p",{style:{margin:"0 0 4px",fontSize:11,fontWeight:700,color:"#64748b"}},t.webPress),...c.webVerification.articlesPresse.map((a,j)=>React.createElement("p",{key:j,style:{margin:"2px 0",fontSize:12,color:"#334155"}},"📰 "+a))),
+              c.webVerification.incoherencesDetectees?.length>0&&React.createElement("div",null,React.createElement("p",{style:{margin:"0 0 4px",fontSize:11,fontWeight:700,color:"#dc2626"}},t.webIncoh),...c.webVerification.incoherencesDetectees.map((inc,j)=>React.createElement("p",{key:j,style:{margin:"2px 0",fontSize:12,color:"#dc2626"}},"• "+inc)))
+            ),
+            // Alertes
+            c.alertes?.length>0&&React.createElement("div",{style:{background:"#fff7ed",border:"1px solid #fed7aa",borderRadius:10,padding:"10px 14px",marginTop:8}},
+              React.createElement("p",{style:{margin:"0 0 6px",fontWeight:700,fontSize:12,color:"#c2410c"}},t.alertes),
+              ...c.alertes.map((a,j)=>React.createElement("p",{key:j,style:{margin:"3px 0",fontSize:12,color:"#c2410c"}},"• "+a))
+            ),
+            // Cohérence & Stabilité
+            React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:10}},
+              React.createElement("div",{style:{background:"#f5f3ff",borderRadius:10,padding:12,border:"1px solid #e9d5ff"}},
+                React.createElement("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:4}},React.createElement("p",{style:{margin:0,fontWeight:700,fontSize:11,color:"#6d28d9"}},t.coherence),React.createElement("span",{style:{fontWeight:800,color:"#8b5cf6"}},(c.coherenceScore||0)+"%")),
+                React.createElement(Bar,{score:c.coherenceScore||0,color:"#8b5cf6"}),
+                React.createElement("p",{style:{margin:"5px 0 0",fontSize:11,color:"#6d28d9",lineHeight:1.5}},c.coherenceNote||"")
               ),
+              React.createElement("div",{style:{background:"#fff7ed",borderRadius:10,padding:12,border:"1px solid #fed7aa"}},
+                React.createElement("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:4}},React.createElement("p",{style:{margin:0,fontWeight:700,fontSize:11,color:"#c2410c"}},t.stabilite),React.createElement("span",{style:{fontWeight:800,color:"#f97316"}},(c.stabiliteScore||0)+"%")),
+                React.createElement(Bar,{score:c.stabiliteScore||0,color:"#f97316"}),
+                React.createElement("p",{style:{margin:"5px 0 0",fontSize:11,color:"#c2410c",lineHeight:1.5}},c.stabiliteNote||"")
+              )
+            ),
+            // Points forts/faibles
+            React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:10}},
+              React.createElement("div",{style:{background:"#f0fdf4",borderRadius:10,padding:12}},React.createElement("p",{style:{margin:"0 0 5px",fontWeight:700,fontSize:11,color:"#166534"}},t.pros),...(c.pros||[]).map((s,j)=>React.createElement("p",{key:j,style:{margin:"3px 0",fontSize:12,color:"#15803d"}},"• "+s))),
+              React.createElement("div",{style:{background:"#fff7ed",borderRadius:10,padding:12}},React.createElement("p",{style:{margin:"0 0 5px",fontWeight:700,fontSize:11,color:"#9a3412"}},t.cons),...(c.cons||[]).map((w,j)=>React.createElement("p",{key:j,style:{margin:"3px 0",fontSize:12,color:"#c2410c"}},"• "+w)))
+            ),
+            // Scores critères
             React.createElement("div",{style:{marginTop:14}},...(c.scores||[]).map((s,j)=>React.createElement("div",{key:j,style:{marginBottom:10}},
               React.createElement("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:3}},React.createElement("span",{style:{fontSize:12,fontWeight:600,color:"#334155"}},s.criterion),React.createElement("span",{style:{fontSize:12,fontWeight:700,color:COLORS[j%COLORS.length]}},s.score+"/100")),
               React.createElement(Bar,{score:s.score,color:COLORS[j%COLORS.length]}),
@@ -535,7 +444,7 @@ ${lang==="en"?"Answer ONLY with this JSON (all values in English):":"Réponds UN
         )
       )),
 
-      // ANALYSE TAB
+      // ── ANALYSE ──
       tab==="analyse"&&React.createElement("div",null,
         React.createElement("p",{style:{color:"#64748b",fontSize:14,marginBottom:12}},t.analysePick),
         React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:8,marginBottom:20}},
@@ -550,18 +459,20 @@ ${lang==="en"?"Answer ONLY with this JSON (all values in English):":"Réponds UN
                 React.createElement("div",{style:{width:32,height:32,borderRadius:9,background:`linear-gradient(135deg,${COLORS[i]},${COLORS[(i+2)%COLORS.length]})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,margin:"0 auto 5px"}},c.name?.[0]),
                 React.createElement("p",{style:{margin:0,fontWeight:700,color:"#1a4a4e",fontSize:11}},c.name),
                 React.createElement("div",{style:{fontSize:24,fontWeight:900,color:COLORS[i],lineHeight:1.3,margin:"5px 0 2px"}},score),
-                React.createElement("div",{style:{background:"#e6f5f6",borderRadius:99,height:5,overflow:"hidden",margin:"5px 0 0"}},React.createElement("div",{style:{width:`${score}%`,background:COLORS[i],height:"100%",borderRadius:99}}))
+                React.createElement(Bar,{score,color:COLORS[i]})
               )
             );
           })
         ),
         React.createElement("div",{style:{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 2px 10px rgba(3,131,140,.08)"}},
-          React.createElement("div",{style:{background:LIGHT,padding:"10px 16px",display:"flex",gap:10,fontWeight:700,fontSize:11,color:BL}},React.createElement("span",{style:{width:28}},"#"),React.createElement("span",{style:{flex:1}},"CANDIDAT"),React.createElement("span",{style:{width:100}},"SCORE"),React.createElement("span",{style:{width:70}},"GLOBAL")),
+          React.createElement("div",{style:{background:LIGHT,padding:"10px 16px",display:"flex",gap:10,fontWeight:700,fontSize:11,color:BL}},
+            React.createElement("span",{style:{width:28}},"#"),React.createElement("span",{style:{flex:1}},"CANDIDAT"),React.createElement("span",{style:{width:100}},"SCORE"),React.createElement("span",{style:{width:70}},"GLOBAL")
+          ),
           ...critRanked.map((c,i)=>{
             const s=(c.scores||[]).find(s=>s.criterion===analysisCrit);
             const score=s?.score||0;
             return React.createElement("div",{key:c.id,style:{padding:"10px 16px",borderTop:"1px solid #f0f9fa",display:"flex",alignItems:"center",gap:10,background:i===0?"#f0fdf4":"#fff"}},
-              React.createElement("span",{style:{width:28,fontWeight:800,color:i<3?COLORS[i]:"#94a3b8",fontSize:13}},i===0?"🥇":i===1?"🥈":i===2?"🥉":`${i+1}`),
+              React.createElement("span",{style:{width:28,fontWeight:800,color:i<3?COLORS[i]:"#94a3b8",fontSize:13}},i===0?"🥇":i===1?"🥈":i===2?"🥉":i+1),
               React.createElement("div",{style:{flex:1}},React.createElement("p",{style:{margin:0,fontWeight:700,color:"#1a4a4e",fontSize:13}},c.name),React.createElement("p",{style:{margin:"1px 0 0",fontSize:10,color:"#94a3b8"}},s?.why||"")),
               React.createElement("div",{style:{width:100,display:"flex",alignItems:"center",gap:5}},React.createElement("div",{style:{background:"#e6f5f6",borderRadius:99,height:5,flex:1,overflow:"hidden"}},React.createElement("div",{style:{width:`${score}%`,background:score>=70?BL:score>=50?GOLD:"#ef4444",height:"100%",borderRadius:99}})),React.createElement("span",{style:{fontWeight:800,fontSize:13,color:BL,minWidth:22}},score)),
               React.createElement("span",{style:{width:70,fontSize:12,fontWeight:700,color:"#64748b",textAlign:"right"}},c.global+"/100")
@@ -570,31 +481,41 @@ ${lang==="en"?"Answer ONLY with this JSON (all values in English):":"Réponds UN
         )
       ),
 
-      // COMPARE TAB
+      // ── COMPARE ──
       tab==="compare"&&React.createElement("div",null,
         React.createElement("p",{style:{color:"#64748b",fontSize:14,marginBottom:12}},t.compareTitle),
-        React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:8,marginBottom:16}},ranked.map(c=>React.createElement("div",{key:c.id,onClick:()=>setSel(p=>p.includes(c.id)?p.filter(x=>x!==c.id):p.length<3?[...p,c.id]:p),style:{padding:"6px 12px",borderRadius:10,border:`2px solid ${sel.includes(c.id)?BL:"#e2e8f0"}`,background:sel.includes(c.id)?LIGHT:"#fff",cursor:"pointer",fontWeight:600,fontSize:12,color:sel.includes(c.id)?BL:"#64748b"}},(sel.includes(c.id)?"✓ ":"")+c.name.split(" ")[0]))),
+        React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:8,marginBottom:16}},
+          ranked.map(c=>React.createElement("div",{key:c.id,onClick:()=>setSel(p=>p.includes(c.id)?p.filter(x=>x!==c.id):p.length<3?[...p,c.id]:p),style:{padding:"6px 12px",borderRadius:10,border:`2px solid ${sel.includes(c.id)?BL:"#e2e8f0"}`,background:sel.includes(c.id)?LIGHT:"#fff",cursor:"pointer",fontWeight:600,fontSize:12,color:sel.includes(c.id)?BL:"#64748b"}},(sel.includes(c.id)?"✓ ":"")+c.name.split(" ")[0]))
+        ),
         cmpList.length>=2
-          ?React.createElement("div",{style:{overflowX:"auto"}},React.createElement("table",{style:{width:"100%",borderCollapse:"collapse",background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 2px 10px rgba(3,131,140,.08)"}},
-            React.createElement("thead",null,React.createElement("tr",{style:{background:LIGHT}},React.createElement("th",{style:{padding:"10px 14px",textAlign:"left",fontSize:11,color:BL,fontWeight:700}},"CRITÈRE"),...cmpList.map((c,i)=>React.createElement("th",{key:c.id,style:{padding:"10px 14px",textAlign:"center",fontSize:12,color:"#1a4a4e",fontWeight:700}},React.createElement("div",{style:{width:28,height:28,borderRadius:7,background:`linear-gradient(135deg,${COLORS[i]},${COLORS[(i+2)%COLORS.length]})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,margin:"0 auto 3px"}},c.name?.[0]),c.name.split(" ")[0])))),
-            React.createElement("tbody",null,
-                              React.createElement("tr",{style:{background:"#e6f5f6"}},React.createElement("td",{style:{padding:"10px 14px",fontWeight:700,color:BL,fontSize:12}},t.globalScore),...cmpList.map(c=>React.createElement("td",{key:c.id,style:{padding:"10px 14px",textAlign:"center",fontWeight:800,fontSize:20,color:BL}},c.global))),
-              ...[["🔗 LinkedIn","linkedinScore"],["🤖 IA","aiScore"],["🧭 Cohérence","coherenceScore"],["📌 Stabilité","stabiliteScore"]].map(([lbl,key])=>React.createElement("tr",{key,style:{borderTop:"1px solid #e6f5f6"}},React.createElement("td",{style:{padding:"8px 14px",fontSize:12,fontWeight:600,color:"#334155"}},lbl),...cmpList.map(c=>React.createElement("td",{key:c.id,style:{padding:"8px 14px",textAlign:"center",fontWeight:700,fontSize:13,color:BL}},(c[key]||0)+"%")))),
-              ...criteria.map((cr,ci)=>React.createElement("tr",{key:ci,style:{borderTop:"1px solid #e6f5f6"}},
-                React.createElement("td",{style:{padding:"8px 14px",fontSize:11,fontWeight:600,color:"#334155"}},cr.name,React.createElement("br"),React.createElement("span",{style:{fontSize:10,color:"#94a3b8"}},"("+cr.weight+"%)")),
-                ...cmpList.map(c=>{const s=(c.scores||[]).find(s=>s.criterion===cr.name)||{score:0};const best=Math.max(...cmpList.map(cc=>(cc.scores||[]).find(ss=>ss.criterion===cr.name)?.score||0));return React.createElement("td",{key:c.id,style:{padding:"8px 14px",textAlign:"center"}},React.createElement("span",{style:{fontWeight:700,fontSize:14,color:s.score===best?BL:"#94a3b8"}},s.score),React.createElement("div",{style:{width:44,margin:"3px auto 0"}},React.createElement(Bar,{score:s.score,color:s.score===best?BL:"#cbd5e1"})));})
-              ))
+          ?React.createElement("div",{style:{overflowX:"auto"}},
+            React.createElement("table",{style:{width:"100%",borderCollapse:"collapse",background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 2px 10px rgba(3,131,140,.08)"}},
+              React.createElement("thead",null,React.createElement("tr",{style:{background:LIGHT}},
+                React.createElement("th",{style:{padding:"10px 14px",textAlign:"left",fontSize:11,color:BL,fontWeight:700}},"CRITÈRE"),
+                ...cmpList.map((c,i)=>React.createElement("th",{key:c.id,style:{padding:"10px 14px",textAlign:"center",fontSize:12,color:"#1a4a4e",fontWeight:700}},
+                  React.createElement("div",{style:{width:28,height:28,borderRadius:7,background:`linear-gradient(135deg,${COLORS[i]},${COLORS[(i+2)%COLORS.length]})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,margin:"0 auto 3px"}},c.name?.[0]),c.name.split(" ")[0]))
+              )),
+              React.createElement("tbody",null,
+                React.createElement("tr",{style:{background:"#e6f5f6"}},React.createElement("td",{style:{padding:"10px 14px",fontWeight:700,color:BL,fontSize:12}},t.globalScore),...cmpList.map(c=>React.createElement("td",{key:c.id,style:{padding:"10px 14px",textAlign:"center",fontWeight:800,fontSize:20,color:BL}},c.global))),
+                ...[[t.linkedin,"linkedinScore"],[t.ia,"aiScore"],[t.coherence,"coherenceScore"],[t.stabilite,"stabiliteScore"]].map(([lbl,key])=>
+                  React.createElement("tr",{key,style:{borderTop:"1px solid #e6f5f6"}},React.createElement("td",{style:{padding:"8px 14px",fontSize:12,fontWeight:600,color:"#334155"}},lbl),...cmpList.map(c=>React.createElement("td",{key:c.id,style:{padding:"8px 14px",textAlign:"center",fontWeight:700,fontSize:13,color:BL}},(c[key]||0)+"%")))
+                ),
+                ...criteria.map((cr,ci)=>React.createElement("tr",{key:ci,style:{borderTop:"1px solid #e6f5f6"}},
+                  React.createElement("td",{style:{padding:"8px 14px",fontSize:11,fontWeight:600,color:"#334155"}},cr.name,React.createElement("br"),React.createElement("span",{style:{fontSize:10,color:"#94a3b8"}},"("+cr.weight+"%)")),
+                  ...cmpList.map(c=>{const s=(c.scores||[]).find(s=>s.criterion===cr.name)||{score:0};const best=Math.max(...cmpList.map(cc=>(cc.scores||[]).find(ss=>ss.criterion===cr.name)?.score||0));return React.createElement("td",{key:c.id,style:{padding:"8px 14px",textAlign:"center"}},React.createElement("span",{style:{fontWeight:700,fontSize:14,color:s.score===best?BL:"#94a3b8"}},s.score),React.createElement("div",{style:{width:44,margin:"3px auto 0"}},React.createElement(Bar,{score:s.score,color:s.score===best?BL:"#cbd5e1"})));})
+                ))
+              )
             )
-          ))
+          )
           :React.createElement("div",{style:{textAlign:"center",padding:50,color:"#94a3b8",background:"#fff",borderRadius:14}},t.compareMin)
       ),
 
-      // NOTES TAB
+      // ── NOTES ──
       tab==="notes"&&React.createElement(React.Fragment,null,...ranked.map((c,i)=>
         React.createElement("div",{key:c.id,style:{background:"#fff",borderRadius:12,padding:18,marginBottom:10,boxShadow:"0 2px 10px rgba(3,131,140,.06)",borderLeft:`4px solid ${COLORS[i%COLORS.length]}`}},
           React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10,marginBottom:10}},
             React.createElement("div",{style:{width:34,height:34,borderRadius:9,background:`linear-gradient(135deg,${COLORS[i%COLORS.length]},${COLORS[(i+2)%COLORS.length]})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800}},c.name?.[0]),
-            React.createElement("div",null,React.createElement("p",{style:{margin:0,fontWeight:700,color:"#1a4a4e",fontSize:13}},c.name),React.createElement("p",{style:{margin:0,fontSize:11,color:"#94a3b8"}},"Score : "+c.global+"/100 · "+t.coherence+" "+(c.coherenceScore||0)+"% · "+t.stabilite+" "+(c.stabiliteScore||0)+"%"))
+            React.createElement("div",null,React.createElement("p",{style:{margin:0,fontWeight:700,color:"#1a4a4e",fontSize:13}},c.name),React.createElement("p",{style:{margin:0,fontSize:11,color:"#94a3b8"}},"Score : "+c.global+"/100"))
           ),
           React.createElement("textarea",{value:notes[c.id]||"",onChange:e=>setNotes(p=>({...p,[c.id]:e.target.value})),placeholder:t.notesPlaceholder,style:{width:"100%",minHeight:75,padding:10,border:"1px solid #e2e8f0",borderRadius:9,fontSize:13,resize:"vertical",outline:"none",boxSizing:"border-box",fontFamily:"inherit",background:"#f8fafc"},onFocus:e=>e.target.style.border=`1px solid ${BL}`,onBlur:e=>e.target.style.border="1px solid #e2e8f0"})
         )
@@ -602,7 +523,6 @@ ${lang==="en"?"Answer ONLY with this JSON (all values in English):":"Réponds UN
     )
   );
 }
-
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
 </script>
 </body>
