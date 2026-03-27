@@ -142,6 +142,7 @@ function App(){
   const ranked=[...candidates].sort((a,b)=>b.global-a.global);
   const cmpList=candidates.filter(c=>sel.includes(c.id));
   const critRanked=[...candidates].sort((a,b)=>{
+    if(analysisCrit==="integrity"||analysisCrit==="criteria")return b.global-a.global;
     const sa=(a.scores||[]).find(s=>s.criterion===analysisCrit)?.score||0;
     const sb=(b.scores||[]).find(s=>s.criterion===analysisCrit)?.score||0;
     return sb-sa;
