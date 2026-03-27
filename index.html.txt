@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sélection & Ranking RH – Bausch + Lomb</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f0f9fa; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/javascript">
+    const { useState, useRef } = React;
+
+    const BL="#03838C", BL2="#025f66", GOLD="#F8C05A", LIGHT="#e6f5f6";
+    const COLORS=[BL,"#0aabb8",GOLD,"#e07b2a","#025f66","#6dcbd3","#8b5cf6","#f97316"];
+
+    const INIT_CRITERIA=[
+      {name:"Télévente & prospection téléphonique",weight:30},
+      {name:"Outils digitaux & CRM",weight:25},
+      {name:"Pilotage KPIs & performance",weight:20},
+      {name:"Connaissance secteur pharmaceutique",weight:15},
+      {name:"Communication & esprit d'équipe",weight:10}
+    ];
+
+    const C=[
+      {id:1,name:"Olivier Dörner",title:"Conseiller Ventes & Digital – (auto-déclaré Pharmacie)",exp:"10+ ans",edu:"MBA Digital 360 – MediaSchool Montpellier",
+       aiScore:28,linkedinScore:82,coherenceScore:82,stabiliteScore:88,
+       coherenceNote:"✅ Fil rouge digital/marketing cohérent. Jamais commercial ni pharma.",
+       stabiliteNote:"✅ Très stable : Stella'com 2 ans, Private Sport Shop 5 ans, EFORS 3 ans CDI.",
+       summary:"Profil digital très solide MAIS ses vrais postes sont EFORS et Private Sport Shop. Aucune télévente réelle. Titre 'Pharmacie' auto-déclaré.",
+       global:67,scores:[
+         {criterion:"Télévente & prospection téléphonique",score:42,why:"⚠️ Aucune télévente dans ses postes réels."},
+         {criterion:"Outils digitaux & CRM",score:92,why:"✅ Google Ads, SEMrush, HubSpot, Brevo, Zapier — meilleur stack du lot."},
+         {criterion:"Pilotage KPIs & performance",score:85,why:"✅ KPI B2B, ROI, analyses marché — vérifiables."},
+         {criterion:"Connaissance secteur pharmaceutique",score:38,why:"⚠️ Aucune expérience pharma. EFORS = généraliste, Private Sport Shop = retail sport."},
+         {criterion:"Communication & esprit d'équipe",score:80,why:"✅ Coordination équipes, social media, travail en agence."}
+       ],pros:["Meilleur stack digital & CRM","Très stable (5+3 ans CDI)","Profil data-driven"],
+       cons:["Aucune télévente réelle","Aucune expérience pharma","Titre Pharmacie auto-déclaré"]},
+
+      {id:2,name:"Gladys Chanussot",title:"Conseillère Ventes & Digital – Spécialiste LEA",exp:"20+ ans",edu:"Licence Sciences de Gestion – ISEM",
+       aiScore:18,linkedinScore:78,coherenceScore:70,stabiliteScore:75,
+       coherenceNote:"⚠️ Parcours en zigzag : admin/export → journaliste → freelance SEO → pédagogique → LEA. Fil commercial absent.",
+       stabiliteNote:"✅ HORIBA 9 ans, Chauvin 4 ans, freelance 4 ans. STUDI = 1 an.",
+       summary:"Réellement en interne Bausch+Lomb. Connaissance pharma vérifiable. Poste actuel réglementaire, pas commercial.",
+       global:63,scores:[
+         {criterion:"Télévente & prospection téléphonique",score:40,why:"⚠️ Aisance téléphonique mentionnée mais aucun poste de télévente réel."},
+         {criterion:"Outils digitaux & CRM",score:72,why:"✅ SEO, emailing, newsletters, WordPress, Google Analytics."},
+         {criterion:"Pilotage KPIs & performance",score:62,why:"✅ Suivi KPIs cohérent avec missions SEO freelance."},
+         {criterion:"Connaissance secteur pharmaceutique",score:90,why:"✅ Laboratoire Chauvin 2014-2018 + B+L depuis 2024. Connaissance interne réelle."},
+         {criterion:"Communication & esprit d'équipe",score:78,why:"✅ Animation cohortes, rédaction, soutien équipes commerciales."}
+       ],pros:["Connaissance interne Bausch+Lomb vérifiable","Expertise pharma réelle","Stabilité rassurante"],
+       cons:["Aucune télévente démontrée","Poste actuel réglementaire","Reconversion commerciale tardive"]},
+
+      {id:3,name:"Nicolas Faussemagne",title:"Commercial BtoB / Business Developer",exp:"20+ ans",edu:"BTS Force de Vente – délégué pharmaceutique",
+       aiScore:22,linkedinScore:70,coherenceScore:30,stabiliteScore:60,
+       coherenceNote:"🔴 Rupture majeure : commercial pharma → RESTAURANT À SÉOUL 12 ANS. Retour en France 2025.",
+       stabiliteNote:"⚠️ Stable par segments mais 12 ans de rupture totale. Retour urgent en France.",
+       summary:"Résultats commerciaux pharma exceptionnels MAIS rupture de 12 ans restaurant à Séoul. Expérience pharma vieille de 13 ans.",
+       global:48,scores:[
+         {criterion:"Télévente & prospection téléphonique",score:58,why:"⚠️ Délégué médical = visites terrain, pas télévente."},
+         {criterion:"Outils digitaux & CRM",score:28,why:"⚠️ Salesforce uniquement. Aucun outil digital marketing."},
+         {criterion:"Pilotage KPIs & performance",score:68,why:"✅ Top 1 France sur 25 commerciaux 2008-2010."},
+         {criterion:"Connaissance secteur pharmaceutique",score:55,why:"⚠️ Réelle mais vieille de 13 ans. Secteur très différent aujourd'hui."},
+         {criterion:"Communication & esprit d'équipe",score:65,why:"⚠️ Gestion restaurant — compétences transférables limitées."}
+       ],pros:["Résultats commerciaux pharma exceptionnels (avant 2012)","BTS délégué pharmaceutique"],
+       cons:["12 ans de rupture totale (restaurant Séoul)","Expérience pharma vieille de 13 ans","Digital inexistant"]},
+
+      {id:4,name:"Nathalie Buhler",title:"Responsable Commerciale & Innovation",exp:"25+ ans",edu:"Master 1 Chef de Projet – Escaia Montpellier",
+       aiScore:34,linkedinScore:75,coherenceScore:75,stabiliteScore:65,
+       coherenceNote:"✅ Fil commercial B2B tech/SaaS cohérent. Secteurs différents mais toujours vente B2B.",
+       stabiliteNote:"⚠️ DELL 9 ans (très stable) puis accélération : ENGIE 1 an, ACRÉTION 2 ans, SMART RX 1 an.",
+       summary:"Commerciale B2B très confirmée. Account management SaaS ≠ télévente pharmacies. Quasi aucune connaissance pharma produits.",
+       global:54,scores:[
+         {criterion:"Télévente & prospection téléphonique",score:65,why:"⚠️ Account management B2B, pas télévente pharmacies."},
+         {criterion:"Outils digitaux & CRM",score:42,why:"⚠️ DIF compétences numériques 2014. Pas de digital marketing."},
+         {criterion:"Pilotage KPIs & performance",score:78,why:"✅ CA 10M/an, objectifs 1M — vérifiable."},
+         {criterion:"Connaissance secteur pharmaceutique",score:22,why:"⚠️ SMART RX = logiciels CRM pour pharma ≠ secteur pharma."},
+         {criterion:"Communication & esprit d'équipe",score:75,why:"✅ Leadership, management — cohérent avec 25 ans de parcours."}
+       ],pros:["Commerciale très expérimentée","Résultats CA élevés","Basée à Montpellier"],
+       cons:["Account management ≠ télévente","Postes de plus en plus courts","Quasi aucune connaissance pharma produits"]},
+
+      {id:5,name:"Abdelali Boulaayad",title:"Resp. Marketing Digital & Communication",exp:"3 ans",edu:"MSC Marketing Digital – INSEEC (Niveau 7)",
+       aiScore:52,linkedinScore:84,coherenceScore:78,stabiliteScore:38,
+       coherenceNote:"✅ Fil digital cohérent. Mais postes tous très courts.",
+       stabiliteNote:"🔴 Instabilité : VEIKKER 6 mois, CMGP 8 mois, stage 5 mois, alternance 1 an. Aucun CDI stable.",
+       summary:"Résultats digitaux concrets chez UWAVE. Postes tous courts. Aucune télévente, aucune pharma.",
+       global:58,scores:[
+         {criterion:"Télévente & prospection téléphonique",score:42,why:"⚠️ CMGP 8 mois = seule expérience commerciale. Pas de télévente."},
+         {criterion:"Outils digitaux & CRM",score:90,why:"✅ -34% CPC, +41% trafic chez UWAVE. Très vérifiable."},
+         {criterion:"Pilotage KPIs & performance",score:85,why:"✅ Le plus data-driven du lot : résultats chiffrés précis."},
+         {criterion:"Connaissance secteur pharmaceutique",score:5,why:"⚠️ UWAVE = technologie industrielle. Zéro lien pharma."},
+         {criterion:"Communication & esprit d'équipe",score:68,why:"✅ Coordination salon, social media, équipe marketing."}
+       ],pros:["Résultats digitaux les plus chiffrés","Stack digital excellent","Fort potentiel"],
+       cons:["Aucun poste stable (max 1 an)","Zéro télévente","Zéro pharma"]},
+
+      {id:6,name:"Nouhaila Fakhroeddine",title:"Cheffe de Produit Junior – Pharma Rx B+L",exp:"2 ans",edu:"Mastère Marketing & Innovation en Santé – KEDGE",
+       aiScore:58,linkedinScore:80,coherenceScore:82,stabiliteScore:58,
+       coherenceNote:"✅ Reconversion logique : biologie → biotechnologies → KEDGE santé → Bausch+Lomb Pharma Rx.",
+       stabiliteNote:"⚠️ Postes courts mais logique formation : IRMB 6 mois, Cerba 6 mois, B+L 14 mois.",
+       summary:"#1 connaissance pharmaceutique du lot. Bausch+Lomb Pharma Rx de l'intérieur. Profil marketing, pas commercial.",
+       global:58,scores:[
+         {criterion:"Télévente & prospection téléphonique",score:38,why:"⚠️ Chef de produit = interface marketing/forces de vente. Aucune télévente directe."},
+         {criterion:"Outils digitaux & CRM",score:50,why:"⚠️ Excel, Canva, Power BI (notions). Niveau basique."},
+         {criterion:"Pilotage KPIs & performance",score:60,why:"✅ Benchmarks, analyses marché, suivi opérationnel."},
+         {criterion:"Connaissance secteur pharmaceutique",score:95,why:"✅ Bausch+Lomb Pharma Rx, argumentaires validés médical/réglementaire, KEDGE santé."},
+         {criterion:"Communication & esprit d'équipe",score:72,why:"✅ Coordination inter-équipes, congrès, soutien forces de vente."}
+       ],pros:["#1 connaissance pharma — B+L de l'intérieur","Reconversion la plus cohérente","Formation santé pointue"],
+       cons:["Aucune télévente","Outils digitaux limités","Chef de produit ≠ commercial"]},
+
+      {id:7,name:"Jérémy Salles",title:"Conseiller Ventes et Digital – B+L (candidature)",exp:"3 ans",edu:"Master 2 Manager Dev. Commercial – Pigier Montpellier",
+       aiScore:62,linkedinScore:72,coherenceScore:80,stabiliteScore:62,
+       coherenceNote:"✅ Fil commercial B2B progressif : ameublement → télécom → BTP → projets France.",
+       stabiliteNote:"⚠️ Alternances 1 an = logique études. Scop3 = 3 mois seulement — signal à questionner.",
+       summary:"Le seul avec une vraie prospection téléphonique vérifiable (Conexio Telecom). Scop3 = 3 mois. Zéro pharma.",
+       global:57,scores:[
+         {criterion:"Télévente & prospection téléphonique",score:78,why:"✅ Conexio Telecom : prospection téléphonique pro explicite. Scop3 : +20 rdv/3 contrats en 4 semaines."},
+         {criterion:"Outils digitaux & CRM",score:40,why:"⚠️ HubSpot CRM + LinkedIn Sales Navigator. Pas de digital marketing."},
+         {criterion:"Pilotage KPIs & performance",score:72,why:"✅ Résultats chiffrés récents et vérifiables."},
+         {criterion:"Connaissance secteur pharmaceutique",score:12,why:"⚠️ BTP, télécom, ameublement. Zéro pharma."},
+         {criterion:"Communication & esprit d'équipe",score:78,why:"✅ Relationnel, écoute active, esprit d'équipe."}
+       ],pros:["Le meilleur en télévente vérifiable","Fil commercial cohérent","Fort potentiel pharma"],
+       cons:["Scop3 = 3 mois (signal d'alerte)","Zéro pharma","Digital absent"]},
+
+      {id:8,name:"Adel Chadli",title:"Délégué Médical – Docteur en Pharmacie",exp:"2 ans",edu:"MSc Manager International Industries de Santé – IMIS",
+       aiScore:38,linkedinScore:76,coherenceScore:85,stabiliteScore:55,
+       coherenceNote:"✅ Fil santé exemplaire : doctorat → internat CHU → délégué médical → MSc marketing santé.",
+       stabiliteNote:"⚠️ Postes courts mais logique post-thèse et reconversion récente.",
+       summary:"Docteur en pharmacie. Reconversion délibérée vers commercial pharma. Délégué = terrain physique. Digital quasi absent.",
+       global:52,scores:[
+         {criterion:"Télévente & prospection téléphonique",score:42,why:"⚠️ Délégué médical = visites terrain. Pas de télévente."},
+         {criterion:"Outils digitaux & CRM",score:30,why:"⚠️ Aucun outil digital marketing. Weber Shandwick = rédaction uniquement."},
+         {criterion:"Pilotage KPIs & performance",score:45,why:"⚠️ Peu de KPIs chiffrés dans ses postes."},
+         {criterion:"Connaissance secteur pharmaceutique",score:92,why:"✅ Docteur en pharmacie, internat CHU, délégué HIKMA et Viherbs."},
+         {criterion:"Communication & esprit d'équipe",score:70,why:"✅ Formation praticiens, coordination équipes médicales."}
+       ],pros:["Fil santé le plus cohérent","Crédibilité maximale auprès des pharmaciens","Reconversion bien construite"],
+       cons:["Délégué terrain ≠ télévente","Digital quasi inexistant","KPIs non chiffrés"]},
+
+      {id:9,name:"Dupont Stéphane",title:"Responsable Commercial & Marketing",exp:"3 ans",edu:"Mastère Manager Dev. Commercial – Ynov Montpellier",
+       aiScore:30,linkedinScore:65,coherenceScore:68,stabiliteScore:58,
+       coherenceNote:"⚠️ Début anarchique : Devred 2 mois, Intermarché 4 mois stage. Stabilité uniquement avec WePlante.",
+       stabiliteNote:"🔴 Devred = 2 mois. Intermarché = 4 mois stage. WePlante = première vraie stabilité (2 ans).",
+       summary:"Début très chaotique (Devred 2 mois). WePlante = première vraie expérience stable. Zéro pharma, résultats non chiffrés.",
+       global:50,scores:[
+         {criterion:"Télévente & prospection téléphonique",score:52,why:"⚠️ Prospection BtoB WePlante mais modalité non précisée."},
+         {criterion:"Outils digitaux & CRM",score:65,why:"✅ HubSpot, Waalaxy, Google Analytics, Semrush."},
+         {criterion:"Pilotage KPIs & performance",score:50,why:"⚠️ Analyse data mentionnée sans résultat chiffré."},
+         {criterion:"Connaissance secteur pharmaceutique",score:5,why:"⚠️ WePlante, Sport 2000, Devred. Zéro pharma."},
+         {criterion:"Communication & esprit d'équipe",score:72,why:"✅ Management équipes, gestion projets — cohérent WePlante."}
+       ],pros:["Outils digitaux réels","Expérience prospection BtoB","Basé région Montpellier"],
+       cons:["Début très chaotique (2 mois Devred)","Résultats non chiffrés","Zéro pharma"]},
+
+      {id:10,name:"Josselin Vatonne",title:"Chargé de Projet Marketing",exp:"2 ans",edu:"Master Management & Communication – Univ. Montpellier (Major)",
+       aiScore:42,linkedinScore:80,coherenceScore:62,stabiliteScore:52,
+       coherenceNote:"⚠️ Secteurs disparates : Justice → SEO immobilier → énergie Enedis → e-commerce.",
+       stabiliteNote:"⚠️ Géolink 6 mois, Enedis 1 an alternance. Micro-entreprise en parallèle.",
+       summary:"Major de promotion. Outils digitaux solides. Fil sectoriel peu lisible. Zéro télévente, zéro pharma.",
+       global:46,scores:[
+         {criterion:"Télévente & prospection téléphonique",score:28,why:"⚠️ Communication et événementiel uniquement. Zéro télévente."},
+         {criterion:"Outils digitaux & CRM",score:68,why:"✅ Google Ads, WordPress, HTML/CSS, Canva, outils IA."},
+         {criterion:"Pilotage KPIs & performance",score:65,why:"✅ 20K€ CA micro-entreprise, +39% Q1 2026, KPI Enedis."},
+         {criterion:"Connaissance secteur pharmaceutique",score:5,why:"⚠️ Enedis, Géolink, Justice. Zéro pharma."},
+         {criterion:"Communication & esprit d'équipe",score:70,why:"✅ Événementiels 300 personnes, coordination prestataires."}
+       ],pros:["Major de promotion","Résultats micro-entreprise chiffrés","Outils digitaux solides"],
+       cons:["Fil sectoriel peu lisible","Postes courts","Zéro télévente","Zéro pharma"]},
+
+      {id:11,name:"Abdellani Fahed",title:"Vendeur Polyvalent",exp:"2 ans",edu:"Titre Pro Vendeur Conseil – IFASUD",
+       aiScore:15,linkedinScore:58,coherenceScore:52,stabiliteScore:48,
+       coherenceNote:"⚠️ Fil restauration/vente physique cohérent dans son secteur mais hors sujet pour ce poste.",
+       stabiliteNote:"🔴 Nike Store = 3 mois. GGL Stadium = 6 mois. Seul Chalet chamoniard stable (3 ans).",
+       summary:"Profil vente physique et restauration. Candidature non adaptée au poste.",
+       global:21,scores:[
+         {criterion:"Télévente & prospection téléphonique",score:28,why:"⚠️ Vente physique et restauration uniquement."},
+         {criterion:"Outils digitaux & CRM",score:10,why:"⚠️ Aucun outil digital ou CRM mentionné."},
+         {criterion:"Pilotage KPIs & performance",score:15,why:"⚠️ Aucun KPI ou objectif chiffré mentionné."},
+         {criterion:"Connaissance secteur pharmaceutique",score:5,why:"⚠️ Restauration et retail. Zéro pharma."},
+         {criterion:"Communication & esprit d'équipe",score:62,why:"✅ Service VIP, accompagnement client — qualités relationnelles réelles."}
+       ],pros:["Qualités relationnelles réelles","Stable 3 ans au Chalet chamoniard"],
+       cons:["Nike Store = 3 mois","Aucun critère du poste couvert","Zéro digital","Zéro pharma"]}
+    ];
+
+    function ScoreBar({score,color}){return React.createElement('div',{style:{background:"#e6f5f6",borderRadius:99,height:7,overflow:"hidden"}},React.createElement('div',{style:{width:`${score}%`,background:color||BL,height:"100%",borderRadius:99}}));}
+    function Badge({score}){const[bg,c,l]=score>=80?["#d1faf5","#025f66","Excellent"]:score>=60?["#fef5dc","#b07a10","Bon"]:["#fde8e8","#b91c1c","Faible"];return React.createElement('span',{style:{background:bg,color:c,padding:"3px 10px",borderRadius:99,fontSize:11,fontWeight:700}},l);}
+    function MBadge({score,labels,colors}){const i=score>=75?0:score>=55?1:2;return React.createElement('span',{style:{background:colors[i][0],color:colors[i][1],padding:"3px 7px",borderRadius:99,fontSize:10,fontWeight:700}},labels[i]);}
+
+    function BLLogo({size}){
+      const s=(size||44)/44;
+      return React.createElement('svg',{width:130*s,height:44*s,viewBox:"0 0 130 44",xmlns:"http://www.w3.org/2000/svg"},
+        React.createElement('text',{x:0,y:36,fill:"#03838C",fontSize:40,fontWeight:900,fontFamily:"'Arial Black',Arial,sans-serif"},"B"),
+        React.createElement('rect',{x:48,y:6,width:12,height:32,fill:"#7dbb8a"}),
+        React.createElement('rect',{x:36,y:16,width:36,height:12,fill:"#6dcbe8"}),
+        React.createElement('rect',{x:48,y:16,width:12,height:12,fill:"#03838C"}),
+        React.createElement('text',{x:78,y:36,fill:"#03838C",fontSize:40,fontWeight:900,fontFamily:"'Arial Black',Arial,sans-serif"},"L")
+      );
+    }
+
+    function App(){
+      const [page,setPage]=useState("ranking");
+      const [criteria,setCriteria]=useState(INIT_CRITERIA);
+      const [jdMode,setJdMode]=useState("text");
+      const [jd,setJd]=useState("");
+      const [jdFile,setJdFile]=useState(null);
+      const [notes,setNotes]=useState({});
+      const [open,setOpen]=useState(null);
+      const [tab,setTab]=useState("rank");
+      const [sel,setSel]=useState([]);
+      const [analysisCrit,setAnalysisCrit]=useState(INIT_CRITERIA[0].name);
+      const jdRef=useRef();
+      const cvRef=useRef();
+      const totalW=criteria.reduce((s,c)=>s+c.weight,0);
+      const candidates=C;
+      const ranked=[...candidates].sort((a,b)=>b.global-a.global);
+      const cmpList=candidates.filter(c=>sel.includes(c.id));
+      const critRanked=[...candidates].sort((a,b)=>{
+        const sa=(a.scores||[]).find(s=>s.criterion===analysisCrit)?.score||0;
+        const sb=(b.scores||[]).find(s=>s.criterion===analysisCrit)?.score||0;
+        return sb-sa;
+      });
+
+      async function handleJdFile(f){
+        if(!f)return;
+        if(f.name.endsWith(".pdf")){setJdFile({name:f.name,type:"pdf"});setJdMode("pdf");}
+        else{
+          try{
+            const ab=await f.arrayBuffer();
+            const r=await mammoth.extractRawText({arrayBuffer:ab});
+            setJd(r.value);setJdMode("text");setJdFile({name:f.name,type:"word"});
+          }catch(e){alert("Erreur lecture Word : "+e.message);}
+        }
+      }
+
+      const Hdr=({sub,children})=>React.createElement('div',{style:{background:`linear-gradient(135deg,${BL2},${BL})`,padding:"16px 24px",display:"flex",alignItems:"center",justifyContent:"space-between"}},
+        React.createElement('div',null,React.createElement(BLLogo,{size:40}),sub&&React.createElement('p',{style:{color:"rgba(255,255,255,.75)",margin:"4px 0 0",fontSize:12}},sub)),
+        React.createElement('div',{style:{display:"flex",gap:8}},children)
+      );
+      const Btn=({onClick,children,primary})=>React.createElement('button',{onClick,style:{background:primary?GOLD:"rgba(255,255,255,.15)",color:primary?"#1a4a4e":"white",border:primary?"none":"1px solid rgba(255,255,255,.3)",padding:"7px 14px",borderRadius:9,fontWeight:700,cursor:"pointer",fontSize:13}},children);
+      const Stepper=({active})=>React.createElement('div',{style:{display:"flex",alignItems:"center",gap:4,marginBottom:22,justifyContent:"center",flexWrap:"wrap"}},
+        ["1 · Fiche de poste","2 · Critères","3 · CVs","4 · Ranking"].map((s,i)=>React.createElement('div',{key:i,style:{display:"flex",alignItems:"center",gap:4}},
+          React.createElement('span',{style:{padding:"4px 10px",borderRadius:99,fontSize:11,fontWeight:700,background:i===active?BL:i<active?"#10b981":LIGHT,color:i<=active?"#fff":BL}},s),
+          i<3&&React.createElement('span',{style:{color:"#cbd5e1",fontSize:12}},"→")
+        ))
+      );
+
+      const indiceRows=[
+        ["🔗","LinkedIn","linkedinScore",BL,[["#d1faf5","#025f66","Cohérent"],["#fef5dc","#b07a10","Partiel"],["#fde8e8","#b91c1c","Incohérent"]]],
+        ["🤖","IA detect.","aiScore",null,[["#d1faf5","#025f66","Humain"],["#fef5dc","#b07a10","Mixte"],["#fde8e8","#b91c1c","IA détecté"]]],
+        ["🧭","Cohérence","coherenceScore","#8b5cf6",[["#f5f3ff","#6d28d9","Cohérent"],["#fef5dc","#b07a10","Partiel"],["#fde8e8","#b91c1c","Incohérent"]]],
+        ["📌","Stabilité","stabiliteScore","#f97316",[["#fff7ed","#c2410c","Stable"],["#fef5dc","#b07a10","Variable"],["#fde8e8","#b91c1c","Instable"]]]
+      ];
+
+      if(page==="jd") return React.createElement('div',{style:{minHeight:"100vh",background:`linear-gradient(160deg,${BL2},${BL} 50%,#0aabb8)`,display:"flex",alignItems:"center",justifyContent:"center",padding:20}},
+        React.createElement('div',{style:{background:"#fff",borderRadius:20,padding:36,maxWidth:600,width:"100%",boxShadow:"0 24px 60px rgba(2,95,102,.25)"}},
+          React.createElement('div',{style:{textAlign:"center",marginBottom:22}},
+            React.createElement(BLLogo,{size:50}),
+            React.createElement('div',{style:{width:44,height:3,background:GOLD,borderRadius:99,margin:"12px auto 10px"}}),
+            React.createElement('h1',{style:{fontSize:21,fontWeight:800,color:"#1a4a4e",margin:"0 0 4px"}},"Sélection & Ranking RH"),
+            React.createElement('p',{style:{color:"#64748b",fontSize:14,margin:0}},"Importez votre fiche de poste")
+          ),
+          React.createElement(Stepper,{active:0}),
+          React.createElement('div',{style:{display:"flex",gap:8,marginBottom:14}},
+            [["text","✏️ Coller le texte"],["pdf","📄 Importer un fichier"]].map(([m,l])=>
+              React.createElement('button',{key:m,onClick:()=>setJdMode(m),style:{flex:1,padding:"9px 0",borderRadius:10,border:`2px solid ${jdMode===m?BL:"#e2e8f0"}`,background:jdMode===m?LIGHT:"#f8fafc",color:jdMode===m?BL:"#64748b",fontWeight:600,fontSize:13,cursor:"pointer"}},l)
+            )
+          ),
+          jdMode==="text"
+            ?React.createElement('textarea',{value:jd,onChange:e=>setJd(e.target.value),placeholder:"Collez ici votre job description complète...",style:{width:"100%",minHeight:180,padding:14,border:"2px solid #e2e8f0",borderRadius:12,fontSize:14,resize:"vertical",outline:"none",boxSizing:"border-box",fontFamily:"inherit",lineHeight:1.6},onFocus:e=>e.target.style.border=`2px solid ${BL}`,onBlur:e=>e.target.style.border="2px solid #e2e8f0"})
+            :React.createElement('div',{onClick:()=>jdRef.current.click(),style:{border:`2px dashed ${jdFile?"#10b981":"#cbd5e1"}`,borderRadius:12,padding:36,textAlign:"center",cursor:"pointer",background:jdFile?"#f0fdf4":"#f8fafc"}},
+              jdFile
+                ?[React.createElement('div',{key:"icon",style:{fontSize:36,marginBottom:6}},"✅"),React.createElement('p',{key:"name",style:{color:"#166534",fontWeight:700,margin:0}},jdFile.name)]
+                :[React.createElement('div',{key:"icon",style:{fontSize:36,marginBottom:6}},"📄"),React.createElement('p',{key:"txt",style:{color:"#334155",fontWeight:700,margin:0}},"PDF ou Word (.docx)")],
+              React.createElement('input',{ref:jdRef,type:"file",accept:".pdf,.doc,.docx",style:{display:"none"},onChange:e=>handleJdFile(e.target.files[0])})
+            ),
+          React.createElement('button',{onClick:()=>setPage("criteria"),disabled:(jdMode==="text"&&!jd.trim())||(jdMode==="pdf"&&!jdFile),style:{marginTop:14,width:"100%",padding:14,background:(jdMode==="text"&&!jd.trim())||(jdMode==="pdf"&&!jdFile)?"#cbd5e1":`linear-gradient(135deg,${BL2},${BL})`,color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer"}},"✨ Analyser la fiche de poste")
+        )
+      );
+
+      if(page==="criteria") return React.createElement('div',{style:{minHeight:"100vh",background:"#f0f9fa"}},
+        React.createElement(Hdr,{sub:"Étape 2 — Validation des critères"},React.createElement(Btn,{onClick:()=>setPage("jd")},"↩ JD")),
+        React.createElement('div',{style:{maxWidth:680,margin:"0 auto",padding:"26px 18px",boxSizing:"border-box"}},
+          React.createElement(Stepper,{active:1}),
+          React.createElement('div',{style:{background:"#fff",borderRadius:16,padding:24,boxShadow:"0 2px 12px rgba(3,131,140,.1)",marginBottom:16}},
+            React.createElement('div',{style:{display:"flex",alignItems:"center",gap:12,marginBottom:16}},
+              React.createElement('div',{style:{width:40,height:40,borderRadius:11,background:`linear-gradient(135deg,${BL},${GOLD})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}},"🎯"),
+              React.createElement('div',null,
+                React.createElement('h2',{style:{margin:0,fontSize:17,fontWeight:800,color:"#1a4a4e"}},"Critères détectés automatiquement"),
+                React.createElement('p',{style:{margin:"3px 0 0",fontSize:13,color:"#64748b"}},`Modifiez les noms et poids (total = 100%).`)
+              )
+            ),
+            criteria.map((cr,i)=>React.createElement('div',{key:i,style:{padding:"12px 14px",borderRadius:12,border:`2px solid ${COLORS[i%COLORS.length]}22`,background:COLORS[i%COLORS.length]+"08",marginBottom:8}},
+              React.createElement('div',{style:{display:"flex",alignItems:"center",gap:8,marginBottom:6}},
+                React.createElement('div',{style:{width:26,height:26,borderRadius:7,background:COLORS[i%COLORS.length],display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,fontSize:12,flexShrink:0}},i+1),
+                React.createElement('input',{value:cr.name,onChange:e=>setCriteria(p=>p.map((c,j)=>j===i?{...c,name:e.target.value}:c)),style:{flex:1,padding:"5px 8px",border:`1px solid ${COLORS[i%COLORS.length]}44`,borderRadius:8,fontSize:13,fontWeight:600,color:"#1a4a4e",outline:"none"}}),
+                React.createElement('input',{type:"number",min:0,max:100,value:cr.weight,onChange:e=>setCriteria(p=>p.map((c,j)=>j===i?{...c,weight:parseInt(e.target.value)||0}:c)),style:{width:46,padding:"4px 5px",border:`1px solid ${COLORS[i%COLORS.length]}44`,borderRadius:8,fontSize:14,fontWeight:700,color:COLORS[i%COLORS.length],textAlign:"center",outline:"none"}}),
+                React.createElement('span',{style:{fontSize:12,color:"#64748b"}},"%"),
+                React.createElement('button',{onClick:()=>setCriteria(p=>p.filter((_,j)=>j!==i)),style:{background:"#fef2f2",border:"none",borderRadius:7,padding:"4px 8px",cursor:"pointer",color:"#ef4444",fontWeight:700}},"✕")
+              ),
+              React.createElement('div',{style:{background:"#e6f5f6",borderRadius:99,height:4,overflow:"hidden"}},
+                React.createElement('div',{style:{width:`${Math.min(cr.weight,100)}%`,background:COLORS[i%COLORS.length],height:"100%",borderRadius:99,transition:"width .3s"}})
+              )
+            )),
+            React.createElement('div',{style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",borderRadius:10,background:totalW===100?"#f0fdf4":"#fef2f2",border:`1px solid ${totalW===100?"#bbf7d0":"#fecaca"}`,marginTop:8}},
+              React.createElement('span',{style:{fontWeight:700,color:totalW===100?"#166534":"#dc2626",fontSize:13}},totalW===100?"✅ Total : 100% — parfait !":"⚠️ Total : "+totalW+"%"),
+              React.createElement('button',{onClick:()=>setCriteria(p=>[...p,{name:"Nouveau critère",weight:0}]),style:{background:BL,color:"#fff",border:"none",borderRadius:8,padding:"5px 12px",cursor:"pointer",fontWeight:600,fontSize:12}},"+  Ajouter")
+            )
+          ),
+          React.createElement('button',{onClick:()=>setPage("cvs"),disabled:totalW!==100,style:{width:"100%",padding:14,background:totalW===100?`linear-gradient(135deg,${BL2},${BL})`:"#cbd5e1",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:totalW===100?"pointer":"not-allowed"}},"Valider et passer aux CVs →")
+        )
+      );
+
+      if(page==="cvs") return React.createElement('div',{style:{minHeight:"100vh",background:"#f0f9fa"}},
+        React.createElement(Hdr,{sub:"Étape 3 — Dépôt des CVs"},React.createElement(Btn,{onClick:()=>setPage("criteria")},"↩ Critères")),
+        React.createElement('div',{style:{maxWidth:680,margin:"0 auto",padding:"26px 18px",boxSizing:"border-box"}},
+          React.createElement(Stepper,{active:2}),
+          React.createElement('div',{style:{display:"flex",flexWrap:"wrap",gap:8,marginBottom:16}},
+            criteria.map((c,i)=>React.createElement('span',{key:i,style:{background:COLORS[i%COLORS.length]+"1a",color:COLORS[i%COLORS.length],padding:"5px 12px",borderRadius:99,fontSize:12,fontWeight:600,border:`1px solid ${COLORS[i%COLORS.length]}33`}},c.name+` (${c.weight}%)`))
+          ),
+          React.createElement('div',{onClick:()=>cvRef.current.click(),style:{border:`2px dashed ${BL}55`,borderRadius:16,padding:36,textAlign:"center",cursor:"pointer",background:"#fff",marginBottom:14}},
+            React.createElement('div',{style:{fontSize:38,marginBottom:6}},"📄"),
+            React.createElement('p',{style:{color:"#334155",fontWeight:700,margin:0}},"Déposez les CVs ici"),
+            React.createElement('p',{style:{color:"#94a3b8",fontSize:13,marginTop:4}},"PDF uniquement"),
+            React.createElement('input',{ref:cvRef,type:"file",accept:".pdf",multiple:true,style:{display:"none"},onChange:()=>{}})
+          ),
+          React.createElement('button',{onClick:()=>setPage("ranking"),style:{width:"100%",padding:13,background:`linear-gradient(135deg,${BL2},${BL})`,color:"#fff",border:"none",borderRadius:12,fontSize:14,fontWeight:700,cursor:"pointer"}},`Voir le ranking (${candidates.length} candidats) →`)
+        )
+      );
+
+      return React.createElement('div',{style:{minHeight:"100vh",background:"#f0f9fa"}},
+        React.createElement(Hdr,{sub:`${candidates.length} candidats analysés`},
+          React.createElement(Btn,{onClick:()=>setPage("cvs")},"+ CVs"),
+          React.createElement(Btn,{onClick:()=>setPage("jd")},"↩ Nouveau poste")
+        ),
+        React.createElement('div',{style:{background:"#fff",borderBottom:"2px solid #e6f5f6",padding:"0 22px",display:"flex",overflowX:"auto"}},
+          [["rank","🏆 Ranking"],["analyse","📊 Analyse"],["compare","⚖️ Comparer"],["notes","📝 Notes"]].map(([t,l])=>
+            React.createElement('button',{key:t,onClick:()=>setTab(t),style:{padding:"13px 18px",border:"none",background:"none",fontWeight:600,fontSize:13,cursor:"pointer",color:tab===t?BL:"#94a3b8",borderBottom:tab===t?`3px solid ${GOLD}`:"3px solid transparent",whiteSpace:"nowrap"}},l)
+          )
+        ),
+        React.createElement('div',{style:{maxWidth:940,margin:"0 auto",padding:"20px 16px",boxSizing:"border-box"}},
+
+          tab==="rank"&&React.createElement(React.Fragment,null,...ranked.map((c,i)=>
+            React.createElement('div',{key:c.id,onClick:()=>setOpen(open===c.id?null:c.id),style:{background:"#fff",borderRadius:14,marginBottom:10,overflow:"hidden",boxShadow:"0 2px 10px rgba(3,131,140,.08)",cursor:"pointer",borderLeft:`5px solid ${COLORS[i%COLORS.length]}`,outline:open===c.id?`2px solid ${BL}`:"2px solid transparent"}},
+              React.createElement('div',{style:{padding:"14px 18px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}},
+                React.createElement('div',{style:{width:30,height:30,borderRadius:8,background:i===0?"#fef5dc":i===1?LIGHT:"#f8fafc",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}},i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${i+1}`),
+                React.createElement('div',{style:{width:38,height:38,borderRadius:10,background:`linear-gradient(135deg,${COLORS[i%COLORS.length]},${COLORS[(i+2)%COLORS.length]})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,fontSize:15,flexShrink:0}},c.name?.[0]),
+                React.createElement('div',{style:{flex:1,minWidth:110}},
+                  React.createElement('p',{style:{margin:0,fontWeight:700,color:"#1a4a4e",fontSize:14}},c.name),
+                  React.createElement('p',{style:{margin:"2px 0 0",fontSize:11,color:"#64748b"}},c.title)
+                ),
+                React.createElement('div',{style:{display:"flex",flexDirection:"column",gap:3,minWidth:145}},
+                  indiceRows.map(([icon,label,key,color,colorMatrix])=>{
+                    const score=c[key];
+                    const idx=score>=75?0:score>=55?1:2;
+                    const col=key==="aiScore"?score>=60?"#ef4444":score>=30?GOLD:"#10b981":(color||BL);
+                    return React.createElement('div',{key:label,style:{display:"flex",alignItems:"center",gap:4}},
+                      React.createElement('span',{style:{fontSize:10,color:"#94a3b8",width:64}},`${icon} ${label}`),
+                      React.createElement('div',{style:{background:"#e6f5f6",borderRadius:99,height:4,width:32,overflow:"hidden"}},React.createElement('div',{style:{width:`${score}%`,background:col,height:"100%",borderRadius:99}})),
+                      React.createElement('span',{style:{fontSize:10,fontWeight:700,color:col,width:22}},`${score}%`),
+                      React.createElement('span',{style:{background:colorMatrix[idx][0],color:colorMatrix[idx][1],padding:"2px 6px",borderRadius:99,fontSize:9,fontWeight:700}},colorMatrix[idx][2])
+                    );
+                  })
+                ),
+                React.createElement('div',{style:{fontSize:22,fontWeight:800,color:BL,lineHeight:1}},c.global,React.createElement('span',{style:{fontSize:10,fontWeight:400}},"/100")),
+                React.createElement(Badge,{score:c.global}),
+                React.createElement('span',{style:{color:"#94a3b8",fontSize:12}},open===c.id?"▲":"▼")
+              ),
+              React.createElement('div',{style:{padding:"0 18px 8px"}},
+                React.createElement('div',{style:{background:"#e6f5f6",borderRadius:99,height:4,overflow:"hidden"}},React.createElement('div',{style:{width:`${c.global}%`,background:`linear-gradient(90deg,${BL},${GOLD})`,height:"100%",borderRadius:99}}))
+              ),
+              open===c.id&&React.createElement('div',{style:{padding:"0 18px 18px",borderTop:`1px solid ${LIGHT}`}},
+                React.createElement('p',{style:{color:"#64748b",fontSize:13,lineHeight:1.7,marginTop:12}},c.summary),
+                React.createElement('div',{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:12}},
+                  React.createElement('div',{style:{background:"#f5f3ff",borderRadius:10,padding:12,border:"1px solid #e9d5ff"}},
+                    React.createElement('div',{style:{display:"flex",justifyContent:"space-between",marginBottom:5}},React.createElement('p',{style:{margin:0,fontWeight:700,fontSize:11,color:"#6d28d9"}},"🧭 Cohérence"),React.createElement('span',{style:{fontWeight:800,color:"#8b5cf6"}},c.coherenceScore+"%")),
+                    React.createElement('div',{style:{background:"#e9d5ff",borderRadius:99,height:4,overflow:"hidden",marginBottom:5}},React.createElement('div',{style:{width:`${c.coherenceScore}%`,background:"#8b5cf6",height:"100%",borderRadius:99}})),
+                    React.createElement('p',{style:{margin:0,fontSize:11,color:"#6d28d9",lineHeight:1.5}},c.coherenceNote)
+                  ),
+                  React.createElement('div',{style:{background:"#fff7ed",borderRadius:10,padding:12,border:"1px solid #fed7aa"}},
+                    React.createElement('div',{style:{display:"flex",justifyContent:"space-between",marginBottom:5}},React.createElement('p',{style:{margin:0,fontWeight:700,fontSize:11,color:"#c2410c"}},"📌 Stabilité"),React.createElement('span',{style:{fontWeight:800,color:"#f97316"}},c.stabiliteScore+"%")),
+                    React.createElement('div',{style:{background:"#fed7aa",borderRadius:99,height:4,overflow:"hidden",marginBottom:5}},React.createElement('div',{style:{width:`${c.stabiliteScore}%`,background:"#f97316",height:"100%",borderRadius:99}})),
+                    React.createElement('p',{style:{margin:0,fontSize:11,color:"#c2410c",lineHeight:1.5}},c.stabiliteNote)
+                  )
+                ),
+                React.createElement('div',{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:10}},
+                  React.createElement('div',{style:{background:"#f0fdf4",borderRadius:10,padding:12}},
+                    React.createElement('p',{style:{margin:"0 0 6px",fontWeight:700,fontSize:11,color:"#166534"}},"✅ Points forts"),
+                    ...(c.pros||[]).map((s,j)=>React.createElement('p',{key:j,style:{margin:"3px 0",fontSize:12,color:"#15803d"}},`• ${s}`))
+                  ),
+                  React.createElement('div',{style:{background:"#fff7ed",borderRadius:10,padding:12}},
+                    React.createElement('p',{style:{margin:"0 0 6px",fontWeight:700,fontSize:11,color:"#9a3412"}},"⚠️ Points d'attention"),
+                    ...(c.cons||[]).map((w,j)=>React.createElement('p',{key:j,style:{margin:"3px 0",fontSize:12,color:"#c2410c"}},`• ${w}`))
+                  )
+                ),
+                React.createElement('div',{style:{marginTop:14}},
+                  ...(c.scores||[]).map((s,j)=>React.createElement('div',{key:j,style:{marginBottom:10}},
+                    React.createElement('div',{style:{display:"flex",justifyContent:"space-between",marginBottom:4}},
+                      React.createElement('span',{style:{fontSize:12,fontWeight:600,color:"#334155"}},s.criterion),
+                      React.createElement('span',{style:{fontSize:12,fontWeight:700,color:COLORS[j%COLORS.length]}},`${s.score}/100`)
+                    ),
+                    React.createElement(ScoreBar,{score:s.score,color:COLORS[j%COLORS.length]}),
+                    React.createElement('p',{style:{fontSize:11,color:"#94a3b8",marginTop:3}},s.why)
+                  ))
+                )
+              )
+            )
+          )),
+
+          tab==="analyse"&&React.createElement('div',null,
+            React.createElement('p',{style:{color:"#64748b",fontSize:14,marginBottom:12}},"Sélectionnez un critère :"),
+            React.createElement('div',{style:{display:"flex",flexWrap:"wrap",gap:8,marginBottom:20}},
+              INIT_CRITERIA.map((cr,i)=>React.createElement('button',{key:cr.name,onClick:()=>setAnalysisCrit(cr.name),style:{padding:"7px 13px",borderRadius:10,border:`2px solid ${analysisCrit===cr.name?COLORS[i]:"#e2e8f0"}`,background:analysisCrit===cr.name?COLORS[i]+"1a":"#fff",color:analysisCrit===cr.name?COLORS[i]:"#64748b",fontWeight:600,fontSize:12,cursor:"pointer"}},`${cr.name} (${cr.weight}%)`))
+            ),
+            React.createElement('div',{style:{display:"flex",gap:10,marginBottom:16,justifyContent:"center"}},
+              critRanked.slice(0,3).map((c,i)=>{
+                const score=(c.scores||[]).find(s=>s.criterion===analysisCrit)?.score||0;
+                return React.createElement('div',{key:c.id,style:{flex:1,maxWidth:180,textAlign:"center"}},
+                  React.createElement('div',{style:{background:"#fff",borderRadius:12,padding:"10px 8px",boxShadow:"0 2px 10px rgba(3,131,140,.1)",borderTop:`4px solid ${COLORS[i]}`}},
+                    React.createElement('div',{style:{fontSize:i===0?"26px":"20px",marginBottom:4}},i===0?"🥇":i===1?"🥈":"🥉"),
+                    React.createElement('div',{style:{width:32,height:32,borderRadius:9,background:`linear-gradient(135deg,${COLORS[i]},${COLORS[(i+2)%COLORS.length]})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,margin:"0 auto 6px"}},c.name?.[0]),
+                    React.createElement('p',{style:{margin:0,fontWeight:700,color:"#1a4a4e",fontSize:11}},c.name),
+                    React.createElement('div',{style:{fontSize:26,fontWeight:900,color:COLORS[i],lineHeight:1.2,margin:"5px 0 2px"}},score),
+                    React.createElement('div',{style:{background:"#e6f5f6",borderRadius:99,height:5,overflow:"hidden",margin:"5px 0 0"}},React.createElement('div',{style:{width:`${score}%`,background:COLORS[i],height:"100%",borderRadius:99}}))
+                  )
+                );
+              })
+            ),
+            React.createElement('div',{style:{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 2px 10px rgba(3,131,140,.08)"}},
+              React.createElement('div',{style:{background:LIGHT,padding:"10px 16px",display:"flex",gap:10,fontWeight:700,fontSize:11,color:BL}},
+                React.createElement('span',{style:{width:28}},"#"),React.createElement('span',{style:{flex:1}},"CANDIDAT"),React.createElement('span',{style:{width:100}},"SCORE"),React.createElement('span',{style:{width:70}},"GLOBAL")
+              ),
+              ...critRanked.map((c,i)=>{
+                const s=(c.scores||[]).find(s=>s.criterion===analysisCrit);
+                const score=s?.score||0;
+                return React.createElement('div',{key:c.id,style:{padding:"10px 16px",borderTop:"1px solid #f0f9fa",display:"flex",alignItems:"center",gap:10,background:i===0?"#f0fdf4":"#fff"}},
+                  React.createElement('span',{style:{width:28,fontWeight:800,color:i<3?COLORS[i]:"#94a3b8",fontSize:13}},i===0?"🥇":i===1?"🥈":i===2?"🥉":`${i+1}`),
+                  React.createElement('div',{style:{flex:1}},
+                    React.createElement('p',{style:{margin:0,fontWeight:700,color:"#1a4a4e",fontSize:13}},c.name),
+                    React.createElement('p',{style:{margin:"1px 0 0",fontSize:10,color:"#94a3b8"}},s?.why)
+                  ),
+                  React.createElement('div',{style:{width:100,display:"flex",alignItems:"center",gap:5}},
+                    React.createElement('div',{style:{background:"#e6f5f6",borderRadius:99,height:5,flex:1,overflow:"hidden"}},React.createElement('div',{style:{width:`${score}%`,background:score>=70?BL:score>=50?GOLD:"#ef4444",height:"100%",borderRadius:99}})),
+                    React.createElement('span',{style:{fontWeight:800,fontSize:13,color:BL,minWidth:22}},score)
+                  ),
+                  React.createElement('span',{style:{width:70,fontSize:12,fontWeight:700,color:"#64748b",textAlign:"right"}},`${c.global}/100`)
+                );
+              })
+            )
+          ),
+
+          tab==="compare"&&React.createElement('div',null,
+            React.createElement('p',{style:{color:"#64748b",fontSize:14,marginBottom:12}},"Sélectionnez jusqu'à 3 candidats :"),
+            React.createElement('div',{style:{display:"flex",flexWrap:"wrap",gap:8,marginBottom:16}},
+              ranked.map(c=>React.createElement('div',{key:c.id,onClick:()=>setSel(p=>p.includes(c.id)?p.filter(x=>x!==c.id):p.length<3?[...p,c.id]:p),style:{padding:"6px 12px",borderRadius:10,border:`2px solid ${sel.includes(c.id)?BL:"#e2e8f0"}`,background:sel.includes(c.id)?LIGHT:"#fff",cursor:"pointer",fontWeight:600,fontSize:12,color:sel.includes(c.id)?BL:"#64748b"}},`${sel.includes(c.id)?"✓ ":""}${c.name.split(" ")[0]}`))
+            ),
+            cmpList.length>=2
+              ?React.createElement('div',{style:{overflowX:"auto"}},
+                React.createElement('table',{style:{width:"100%",borderCollapse:"collapse",background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 2px 10px rgba(3,131,140,.08)"}},
+                  React.createElement('thead',null,React.createElement('tr',{style:{background:LIGHT}},
+                    React.createElement('th',{style:{padding:"10px 14px",textAlign:"left",fontSize:11,color:BL,fontWeight:700}},"CRITÈRE"),
+                    ...cmpList.map((c,i)=>React.createElement('th',{key:c.id,style:{padding:"10px 14px",textAlign:"center",fontSize:12,color:"#1a4a4e",fontWeight:700}},
+                      React.createElement('div',{style:{width:28,height:28,borderRadius:7,background:`linear-gradient(135deg,${COLORS[i]},${COLORS[(i+2)%COLORS.length]})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,margin:"0 auto 3px"}},c.name?.[0]),
+                      c.name.split(" ")[0]
+                    ))
+                  )),
+                  React.createElement('tbody',null,
+                    React.createElement('tr',{style:{background:"#e6f5f6"}},React.createElement('td',{style:{padding:"10px 14px",fontWeight:700,color:BL,fontSize:12}},"Score global"),...cmpList.map(c=>React.createElement('td',{key:c.id,style:{padding:"10px 14px",textAlign:"center",fontWeight:800,fontSize:20,color:BL}},c.global))),
+                    ...[["🔗 LinkedIn","linkedinScore"],["🤖 IA","aiScore"],["🧭 Cohérence","coherenceScore"],["📌 Stabilité","stabiliteScore"]].map(([lbl,key])=>
+                      React.createElement('tr',{key,style:{borderTop:"1px solid #e6f5f6"}},
+                        React.createElement('td',{style:{padding:"8px 14px",fontSize:12,fontWeight:600,color:"#334155"}},lbl),
+                        ...cmpList.map(c=>React.createElement('td',{key:c.id,style:{padding:"8px 14px",textAlign:"center",fontWeight:700,fontSize:13,color:BL}},`${c[key]}%`))
+                      )
+                    ),
+                    ...INIT_CRITERIA.map((cr,ci)=>React.createElement('tr',{key:ci,style:{borderTop:"1px solid #e6f5f6"}},
+                      React.createElement('td',{style:{padding:"8px 14px",fontSize:11,fontWeight:600,color:"#334155"}},cr.name,React.createElement('br'),React.createElement('span',{style:{fontSize:10,color:"#94a3b8"}},`(${cr.weight}%)`)),
+                      ...cmpList.map(c=>{
+                        const s=(c.scores||[]).find(s=>s.criterion===cr.name)||{score:0};
+                        const best=Math.max(...cmpList.map(cc=>(cc.scores||[]).find(ss=>ss.criterion===cr.name)?.score||0));
+                        return React.createElement('td',{key:c.id,style:{padding:"8px 14px",textAlign:"center"}},
+                          React.createElement('span',{style:{fontWeight:700,fontSize:14,color:s.score===best?BL:"#94a3b8"}},s.score),
+                          React.createElement('div',{style:{width:44,margin:"3px auto 0"}},React.createElement(ScoreBar,{score:s.score,color:s.score===best?BL:"#cbd5e1"}))
+                        );
+                      })
+                    ))
+                  )
+                )
+              )
+              :React.createElement('div',{style:{textAlign:"center",padding:50,color:"#94a3b8",background:"#fff",borderRadius:14}},"Sélectionnez au moins 2 candidats")
+          ),
+
+          tab==="notes"&&React.createElement(React.Fragment,null,...ranked.map((c,i)=>
+            React.createElement('div',{key:c.id,style:{background:"#fff",borderRadius:12,padding:18,marginBottom:10,boxShadow:"0 2px 10px rgba(3,131,140,.06)",borderLeft:`4px solid ${COLORS[i%COLORS.length]}`}},
+              React.createElement('div',{style:{display:"flex",alignItems:"center",gap:10,marginBottom:10}},
+                React.createElement('div',{style:{width:34,height:34,borderRadius:9,background:`linear-gradient(135deg,${COLORS[i%COLORS.length]},${COLORS[(i+2)%COLORS.length]})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800}},c.name?.[0]),
+                React.createElement('div',null,
+                  React.createElement('p',{style:{margin:0,fontWeight:700,color:"#1a4a4e",fontSize:13}},c.name),
+                  React.createElement('p',{style:{margin:0,fontSize:11,color:"#94a3b8"}},`Score : ${c.global}/100 · 🧭 ${c.coherenceScore}% · 📌 ${c.stabiliteScore}%`)
+                )
+              ),
+              React.createElement('textarea',{value:notes[c.id]||"",onChange:e=>setNotes(p=>({...p,[c.id]:e.target.value})),placeholder:"Notes, impressions, décision finale...",style:{width:"100%",minHeight:75,padding:10,border:"1px solid #e2e8f0",borderRadius:9,fontSize:13,resize:"vertical",outline:"none",boxSizing:"border-box",fontFamily:"inherit",background:"#f8fafc"},onFocus:e=>e.target.style.border=`1px solid ${BL}`,onBlur:e=>e.target.style.border="1px solid #e2e8f0"})
+            )
+          ))
+        )
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+  </script>
+</body>
+</html>
