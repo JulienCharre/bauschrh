@@ -194,7 +194,12 @@ function App(){
 
   function pickCVs(files){
     setCandidates([]);
-    [...files].filter(f=>f.type==="application/pdf").reduce((p,f)=>p.then(()=>doAnalyzeCV(f)),Promise.resolve());
+    const pdfs=[...files].filter(f=>f.type==="application/pdf");
+    // Délai de 8 secondes entre chaque CV pour éviter le rate limit
+    pdfs.reduce((p,f,i)=>p.then(()=>{
+      setLoadMsg((lang==="fr"?"Analyse CV ":"Analysing CV ")+(i+1)+"/"+pdfs.length+" — "+f.name);
+      return doAnalyzeCV(f).then(()=>new Promise(res=>setTimeout(res,8000)));
+    }),Promise.resolve());
   }
 
   // Composants UI
