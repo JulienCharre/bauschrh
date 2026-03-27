@@ -18,6 +18,27 @@
   <script type="text/javascript">
     const { useState, useRef } = React;
 
+    async function callClaude(apiKey, messages, system) {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1500,
+          system: system || "Tu es expert RH. Réponds UNIQUEMENT en JSON valide, sans markdown ni backticks.",
+          messages
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(JSON.stringify(data));
+      return data.content[0].text.replace(/```json|```/g, "").trim();
+    }
+
     const BL="#03838C", BL2="#025f66", GOLD="#F8C05A", LIGHT="#e6f5f6";
     const COLORS=[BL,"#0aabb8",GOLD,"#e07b2a","#025f66","#6dcbd3","#8b5cf6","#f97316"];
 
@@ -201,6 +222,9 @@
     }
 
     function App(){
+      const [apiKey, setApiKey] = useState(localStorage.getItem("bl_api_key")||"");
+      const [apiKeySet, setApiKeySet] = useState(!!localStorage.getItem("bl_api_key"));
+      const [apiError, setApiError] = useState("");
       const [page,setPage]=useState("ranking");
       const [criteria,setCriteria]=useState(INIT_CRITERIA);
       const [jdMode,setJdMode]=useState("text");
@@ -214,8 +238,41 @@
       const jdRef=useRef();
       const cvRef=useRef();
       const totalW=criteria.reduce((s,c)=>s+c.weight,0);
-      const candidates=C;
-      const ranked=[...candidates].sort((a,b)=>b.global-a.global);
+      const [waiting, setWaiting] = useState(false);
+      const [waitMsg, setWaitMsg] = useState("");
+      const [aiError, setAiError] = useState("");
+      const [liveCandiates, setLiveCandidates] = useState([]);
+      const [liveCriteria, setLiveCriteria] = useState(null);
+
+      async function analyzeJD(jdText) {
+        setWaiting(true); setWaitMsg("Analyse de la fiche de poste..."); setAiError("");
+        try {
+          const raw = await callClaude(apiKey, [{role:"user",content:`Fiche de poste :\n\n${jdText}\n\nExtrait les 5 critères RH les plus importants. JSON: {"criteria":[{"name":"critère","weight":20}]}. Poids total = 100.`}]);
+          const parsed = JSON.parse(raw);
+          setLiveCriteria(parsed.criteria);
+          setCriteria(parsed.criteria);
+          setPage("criteria");
+        } catch(e) { setAiError("Erreur analyse JD : " + e.message.slice(0,100)); }
+        setWaiting(false);
+      }
+
+      async function analyzeCV(file, crit) {
+        setWaiting(true); setWaitMsg(`Analyse de ${file.name}...`); setAiError("");
+        try {
+          const b64 = await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});
+          const raw = await callClaude(apiKey, [{role:"user",content:[
+            {type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},
+            {type:"text",text:`Critères:\n${JSON.stringify(crit)}\n\nAnalyse ce CV. JSON: {"name":"Nom","title":"titre","exp":"X ans","edu":"diplôme","summary":"résumé","global":75,"coherenceScore":70,"stabiliteScore":65,"linkedinScore":75,"aiScore":30,"coherenceNote":"note","stabiliteNote":"note","scores":[{"criterion":"nom exact","score":75,"why":"justification"}],"pros":["point"],"cons":["point"]}`}
+          ]}]);
+          const c = JSON.parse(raw);
+          c.id = Date.now() + Math.random();
+          setLiveCandidates(prev => [...prev, c].sort((a,b)=>b.global-a.global));
+        } catch(e) { setAiError("Erreur analyse CV : " + e.message.slice(0,100)); }
+        setWaiting(false);
+      }
+
+      const displayCandidates = liveCandiates.length > 0 ? liveCandiates : C;
+      const displayCriteria = liveCriteria || INIT_CRITERIA;
       const cmpList=candidates.filter(c=>sel.includes(c.id));
       const critRanked=[...candidates].sort((a,b)=>{
         const sa=(a.scores||[]).find(s=>s.criterion===analysisCrit)?.score||0;
@@ -254,7 +311,38 @@
         ["📌","Stabilité","stabiliteScore","#f97316",[["#fff7ed","#c2410c","Stable"],["#fef5dc","#b07a10","Variable"],["#fde8e8","#b91c1c","Instable"]]]
       ];
 
-      if(page==="jd") return React.createElement('div',{style:{minHeight:"100vh",background:`linear-gradient(160deg,${BL2},${BL} 50%,#0aabb8)`,display:"flex",alignItems:"center",justifyContent:"center",padding:20}},
+      async function saveApiKey() {
+        if (!apiKey.trim()) return;
+        setApiError("");
+        try {
+          await callClaude(apiKey, [{role:"user",content:"Réponds juste OK"}]);
+          localStorage.setItem("bl_api_key", apiKey);
+          setApiKeySet(true);
+        } catch(e) {
+          setApiError("Clé invalide ou erreur réseau : " + e.message.slice(0,80));
+        }
+      }
+
+      if (!apiKeySet) return React.createElement('div',{style:{minHeight:"100vh",background:`linear-gradient(160deg,${BL2},${BL} 50%,#0aabb8)`,display:"flex",alignItems:"center",justifyContent:"center",padding:20}},
+        React.createElement('div',{style:{background:"#fff",borderRadius:20,padding:36,maxWidth:500,width:"100%",boxShadow:"0 24px 60px rgba(2,95,102,.25)",textAlign:"center"}},
+          React.createElement(BLLogo,{size:50}),
+          React.createElement('div',{style:{width:44,height:3,background:GOLD,borderRadius:99,margin:"12px auto 16px"}}),
+          React.createElement('h1',{style:{fontSize:20,fontWeight:800,color:"#1a4a4e",marginBottom:8}},"Sélection & Ranking RH"),
+          React.createElement('p',{style:{color:"#64748b",fontSize:14,marginBottom:24}},"Entrez votre clé API Anthropic pour activer l'IA"),
+          React.createElement('input',{
+            value:apiKey, onChange:e=>setApiKey(e.target.value),
+            placeholder:"sk-ant-api03-...",
+            style:{width:"100%",padding:"12px 14px",border:`2px solid ${apiError?"#fca5a5":"#e2e8f0"}`,borderRadius:12,fontSize:14,outline:"none",boxSizing:"border-box",marginBottom:8,fontFamily:"monospace"},
+            onFocus:e=>e.target.style.border=`2px solid ${BL}`,
+            onBlur:e=>e.target.style.border=`2px solid ${apiError?"#fca5a5":"#e2e8f0"}`
+          }),
+          apiError && React.createElement('p',{style:{color:"#dc2626",fontSize:12,marginBottom:8,textAlign:"left"}},apiError),
+          React.createElement('p',{style:{color:"#94a3b8",fontSize:11,marginBottom:16,textAlign:"left"}},"🔒 Votre clé est stockée uniquement dans votre navigateur. Obtenez une clé sur ",
+            React.createElement('a',{href:"https://console.anthropic.com",target:"_blank",style:{color:BL}},"console.anthropic.com")
+          ),
+          React.createElement('button',{onClick:saveApiKey,disabled:!apiKey.trim(),style:{width:"100%",padding:14,background:apiKey.trim()?`linear-gradient(135deg,${BL2},${BL})`:"#cbd5e1",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:apiKey.trim()?"pointer":"not-allowed"}},"✨ Activer l'IA")
+        )
+      ); return React.createElement('div',{style:{minHeight:"100vh",background:`linear-gradient(160deg,${BL2},${BL} 50%,#0aabb8)`,display:"flex",alignItems:"center",justifyContent:"center",padding:20}},
         React.createElement('div',{style:{background:"#fff",borderRadius:20,padding:36,maxWidth:600,width:"100%",boxShadow:"0 24px 60px rgba(2,95,102,.25)"}},
           React.createElement('div',{style:{textAlign:"center",marginBottom:22}},
             React.createElement(BLLogo,{size:50}),
