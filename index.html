@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Sélection & Ranking RH – Bausch + Lomb</title>
+<title>VETT. Recruit A Players Only. – Bausch + Lomb</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -54,9 +54,9 @@ const COLORS=[BL,"#0aabb8",GOLD,"#e07b2a","#025f66","#6dcbd3","#8b5cf6","#f97316
 const INIT_CRIT=[{name:"Télévente & prospection",weight:30},{name:"Outils digitaux & CRM",weight:25},{name:"Pilotage KPIs",weight:20},{name:"Connaissance pharma",weight:15},{name:"Communication & équipe",weight:10}];
 
 const T={
-  fr:{appTitle:"Sélection & Ranking RH",appSub:"Importez votre fiche de poste — l'IA extrait les critères et classe vos candidats",apiSub:"Entrez votre clé API Anthropic pour activer l'IA",apiNote:"🔒 Clé stockée dans votre navigateur. Obtenez-la sur ",apiBtn:"✨ Activer l'IA",apiChecking:"⏳ Vérification...",apiOvl:"⏳ Serveurs surchargés — réessayez dans 30s.",apiInv:"Clé invalide : ",jdText:"✏️ Coller le texte",jdFile:"📄 Importer un fichier",jdPh:"Collez votre job description...",jdDrop:"Glissez-déposez votre fichier ici",jdDropSub:"ou cliquez · PDF ou Word (.docx)",jdLoaded:"Cliquez ou déposez un autre fichier",jdBtn:"✨ Analyser la fiche de poste",jdAn:"⏳ Analyse...",s1:"1·JD",s2:"2·Critères",s3:"3·CVs",s4:"4·Ranking",critTitle:"Critères détectés",critSub:"Modifiez si nécessaire (total = 100%)",critOk:"✅ Total 100% — parfait !",critWarn:"⚠️ Total : ",critAdd:"+ Ajouter",critNext:"Valider et passer aux CVs →",cvSub:"Étape 3 — Dépôt des CVs",cvBack:"↩ Critères",cvDrop:"Glissez-déposez vos CVs ici",cvDropSub:"ou cliquez · PDF uniquement · Plusieurs fichiers acceptés",cvBtn:"🏆 Voir le ranking",tabRank:"🏆 Ranking",tabAn:"📊 Analyse",tabCmp:"⚖️ Comparer",tabNotes:"📝 Notes",btnCVs:"+ CVs",btnJD:"↩ Nouvelle JD",btnKey:"🔑 Clé API",btnBackJD:"↩ JD",globalScore:"Score global",anPick:"Sélectionnez un critère :",cmpTitle:"Sélectionnez jusqu'à 3 candidats :",cmpMin:"Sélectionnez au moins 2 candidats",notesPh:"Notes, impressions, décision finale...",autoDecl:"🚨 Auto-déclaration détectée",webCo:"ENTREPRISES",webPress:"ARTICLES / PRESSE",webInc:"⚠️ INCOHÉRENCES",alertes:"⚠️ Alertes",pros:"Forces vérifiées",cons:"Points de vigilance",coh:"🧭 Cohérence",stab:"📌 Stabilité",li:"🔗 LinkedIn",ia:"🤖 IA",geo:"📍 Proximité",geoLabel:"📍 Localisation",geoOS:"Sur place",geoN:"Proche",geoF:"Éloigné",excellent:"Excellent",bon:"Bon",faible:"Faible",coherent:"Cohérent",partiel:"Partiel",incoherent:"Incohérent",stable:"Stable",variable:"Variable",instable:"Instable",humain:"Humain",mixte:"Mixte",iaD:"IA détecté",candidats:"candidats",anJD:"Analyse de la fiche de poste...",anCV:"Analyse + vérification web : ",matTitle:"Matrice de Positionnement",matSub:"Positionnez les candidats sur 2 critères clés",q1:"⭐ Profil idéal",q2:"⚠️ À risque",q3:"🔄 À former",q4:"💡 Spécialiste",matLeg:"La taille des bulles = score global · Axes X et Y modifiables",empPro:"🏢 Empreinte Pro",ancGeo:"📍 Ancrage Géo",adnCar:"🧬 ADN Carrière",scoreCrit:"📊 Scores par critère",critVue:"🎯 Critères du poste",integVue:"🔬 Intégrité des profils",
+  fr:{appTitle:"VETT. Recruit A Players Only.",apiSub:"Entrez votre clé API Anthropic pour activer l'IA",apiNote:"🔒 Clé stockée dans votre navigateur. Obtenez-la sur ",apiBtn:"✨ Activer l'IA",apiChecking:"⏳ Vérification...",apiOvl:"⏳ Serveurs surchargés — réessayez dans 30s.",apiInv:"Clé invalide : ",jdText:"✏️ Coller le texte",jdFile:"📄 Importer un fichier",jdPh:"Collez votre job description...",jdDrop:"Glissez-déposez votre fichier ici",jdDropSub:"ou cliquez · PDF ou Word (.docx)",jdLoaded:"Cliquez ou déposez un autre fichier",jdBtn:"✨ Analyser la fiche de poste",jdAn:"⏳ Analyse...",s1:"1·JD",s2:"2·Critères",s3:"3·CVs",s4:"4·Ranking",critTitle:"Critères détectés",critSub:"Modifiez si nécessaire (total = 100%)",critOk:"✅ Total 100% — parfait !",critWarn:"⚠️ Total : ",critAdd:"+ Ajouter",critNext:"Valider et passer aux CVs →",cvSub:"Étape 3 — Dépôt des CVs",cvBack:"↩ Critères",cvDrop:"Glissez-déposez vos CVs ici",cvDropSub:"ou cliquez · PDF uniquement · Plusieurs fichiers acceptés",cvBtn:"🏆 Voir le ranking",tabRank:"🏆 Ranking",tabAn:"📊 Analyse",tabCmp:"⚖️ Comparer",tabNotes:"📝 Notes",btnCVs:"+ CVs",btnJD:"↩ Nouvelle JD",btnKey:"🔑 Clé API",btnBackJD:"↩ JD",globalScore:"A Player Score",anPick:"Sélectionnez un critère :",cmpTitle:"Sélectionnez jusqu'à 3 candidats :",cmpMin:"Sélectionnez au moins 2 candidats",notesPh:"Notes, impressions, décision finale...",autoDecl:"🚨 Auto-déclaration détectée",webCo:"ENTREPRISES",webPress:"ARTICLES / PRESSE",webInc:"⚠️ INCOHÉRENCES",alertes:"⚠️ Alertes",pros:"Forces vérifiées",cons:"Points de vigilance",coh:"🧭 Cohérence",stab:"📌 Stabilité",li:"🔗 LinkedIn",ia:"🤖 IA",geo:"📍 Proximité",geoLabel:"📍 Localisation",geoOS:"Sur place",geoN:"Proche",geoF:"Éloigné",excellent:"Excellent",bon:"Bon",faible:"Faible",coherent:"Cohérent",partiel:"Partiel",incoherent:"Incohérent",stable:"Stable",variable:"Variable",instable:"Instable",humain:"Humain",mixte:"Mixte",iaD:"IA détecté",candidats:"candidats",anJD:"Analyse de la fiche de poste...",anCV:"Analyse + vérification web : ",matTitle:"Matrice de Positionnement",matSub:"Positionnez les candidats sur 2 critères clés",q1:"⭐ Profil idéal",q2:"⚠️ À risque",q3:"🔄 À former",q4:"💡 Spécialiste",matLeg:"La taille des bulles = score global · Axes X et Y modifiables",empPro:"🏢 Empreinte Pro",ancGeo:"📍 Ancrage Géo",adnCar:"🧬 ADN Carrière",scoreCrit:"📊 Scores par critère",critVue:"🎯 Critères du poste",integVue:"🔬 Intégrité des profils",
   progTitle:"Analyse des CVs en cours",progOf:"CV analysé sur",progDone:"✅ Tous les CVs ont été analysés !",progWait:"En attente...",progAnalysing:"Analyse en cours..."},
-  en:{appTitle:"Candidate Selection & Ranking",appSub:"Import your job description — AI extracts criteria and ranks candidates",apiSub:"Enter your Anthropic API key to activate AI",apiNote:"🔒 Key stored in your browser. Get it at ",apiBtn:"✨ Activate AI",apiChecking:"⏳ Checking...",apiOvl:"⏳ Servers overloaded — retry in 30s.",apiInv:"Invalid key: ",jdText:"✏️ Paste text",jdFile:"📄 Import file",jdPh:"Paste your job description here...",jdDrop:"Drag & drop your file here",jdDropSub:"or click · PDF or Word (.docx)",jdLoaded:"Click or drop another file",jdBtn:"✨ Analyse job description",jdAn:"⏳ Analysing...",s1:"1·JD",s2:"2·Criteria",s3:"3·CVs",s4:"4·Ranking",critTitle:"Detected criteria",critSub:"Edit if needed (total = 100%)",critOk:"✅ Total 100% — perfect!",critWarn:"⚠️ Total: ",critAdd:"+ Add",critNext:"Validate criteria and move to CVs →",cvSub:"Step 3 — Upload CVs",cvBack:"↩ Criteria",cvDrop:"Drag & drop your CVs here",cvDropSub:"or click · PDF only · Multiple files accepted",cvBtn:"🏆 View ranking",tabRank:"🏆 Ranking",tabAn:"📊 Analysis",tabCmp:"⚖️ Compare",tabNotes:"📝 Notes",btnCVs:"+ CVs",btnJD:"↩ New JD",btnKey:"🔑 API Key",btnBackJD:"↩ JD",globalScore:"Global score",anPick:"Select a criterion:",cmpTitle:"Select up to 3 candidates:",cmpMin:"Select at least 2 candidates",notesPh:"Notes, impressions, final decision...",autoDecl:"🚨 Self-declaration detected",webCo:"COMPANIES",webPress:"PRESS / ARTICLES",webInc:"⚠️ INCONSISTENCIES",alertes:"⚠️ Alerts",pros:"Verified Strengths",cons:"Watch Points",coh:"🧭 Consistency",stab:"📌 Stability",li:"🔗 LinkedIn",ia:"🤖 AI",geo:"📍 Proximity",geoLabel:"📍 Location",geoOS:"On-site",geoN:"Nearby",geoF:"Remote",excellent:"Excellent",bon:"Good",faible:"Weak",coherent:"Consistent",partiel:"Partial",incoherent:"Inconsistent",stable:"Stable",variable:"Variable",instable:"Unstable",humain:"Human",mixte:"Mixed",iaD:"AI detected",candidats:"candidates",anJD:"Analysing job description...",anCV:"Analysing + web check: ",matTitle:"Positioning Matrix",matSub:"Plot candidates on 2 key criteria",q1:"⭐ Ideal profile",q2:"⚠️ At risk",q3:"🔄 Needs training",q4:"💡 Specialist",matLeg:"Bubble size = global score · X and Y axes are customisable",empPro:"🏢 Professional Track",ancGeo:"📍 Geo Fit",adnCar:"🧬 Career DNA",scoreCrit:"📊 Criteria scores",critVue:"🎯 Job Criteria",integVue:"🔬 Profile Integrity",
+  en:{appTitle:"VETT. Recruit A Players Only.",apiSub:"Enter your Anthropic API key to activate AI",apiNote:"🔒 Key stored in your browser. Get it at ",apiBtn:"✨ Activate AI",apiChecking:"⏳ Checking...",apiOvl:"⏳ Servers overloaded — retry in 30s.",apiInv:"Invalid key: ",jdText:"✏️ Paste text",jdFile:"📄 Import file",jdPh:"Paste your job description here...",jdDrop:"Drag & drop your file here",jdDropSub:"or click · PDF or Word (.docx)",jdLoaded:"Click or drop another file",jdBtn:"✨ Analyse job description",jdAn:"⏳ Analysing...",s1:"1·JD",s2:"2·Criteria",s3:"3·CVs",s4:"4·Ranking",critTitle:"Detected criteria",critSub:"Edit if needed (total = 100%)",critOk:"✅ Total 100% — perfect!",critWarn:"⚠️ Total: ",critAdd:"+ Add",critNext:"Validate criteria and move to CVs →",cvSub:"Step 3 — Upload CVs",cvBack:"↩ Criteria",cvDrop:"Drag & drop your CVs here",cvDropSub:"or click · PDF only · Multiple files accepted",cvBtn:"🏆 View ranking",tabRank:"🏆 Ranking",tabAn:"📊 Analysis",tabCmp:"⚖️ Compare",tabNotes:"📝 Notes",btnCVs:"+ CVs",btnJD:"↩ New JD",btnKey:"🔑 API Key",btnBackJD:"↩ JD",globalScore:"A Player Score",anPick:"Select a criterion:",cmpTitle:"Select up to 3 candidates:",cmpMin:"Select at least 2 candidates",notesPh:"Notes, impressions, final decision...",autoDecl:"🚨 Self-declaration detected",webCo:"COMPANIES",webPress:"PRESS / ARTICLES",webInc:"⚠️ INCONSISTENCIES",alertes:"⚠️ Alerts",pros:"Verified Strengths",cons:"Watch Points",coh:"🧭 Consistency",stab:"📌 Stability",li:"🔗 LinkedIn",ia:"🤖 AI",geo:"📍 Proximity",geoLabel:"📍 Location",geoOS:"On-site",geoN:"Nearby",geoF:"Remote",excellent:"Excellent",bon:"Good",faible:"Weak",coherent:"Consistent",partiel:"Partial",incoherent:"Inconsistent",stable:"Stable",variable:"Variable",instable:"Unstable",humain:"Human",mixte:"Mixed",iaD:"AI detected",candidats:"candidates",anJD:"Analysing job description...",anCV:"Analysing + web check: ",matTitle:"Positioning Matrix",matSub:"Plot candidates on 2 key criteria",q1:"⭐ Ideal profile",q2:"⚠️ At risk",q3:"🔄 Needs training",q4:"💡 Specialist",matLeg:"Bubble size = global score · X and Y axes are customisable",empPro:"🏢 Professional Track",ancGeo:"📍 Geo Fit",adnCar:"🧬 Career DNA",scoreCrit:"📊 Criteria scores",critVue:"🎯 Job Criteria",integVue:"🔬 Profile Integrity",
   progTitle:"Analysing CVs",progOf:"CV analysed out of",progDone:"✅ All CVs have been analysed!",progWait:"Waiting...",progAnalysing:"Analysing..."}
 };
 
@@ -334,15 +334,57 @@ function App(){
       React.createElement("div",{style:{textAlign:"center",marginBottom:14}},React.createElement(Logo,{size:46}),React.createElement("div",{style:{width:40,height:3,background:GOLD,borderRadius:99,margin:"10px auto 10px"}}),React.createElement("h1",{style:{fontSize:20,fontWeight:800,color:"#1a4a4e",margin:"0 0 4px"}},t.appTitle),React.createElement("p",{style:{color:"#64748b",fontSize:13,margin:0}},t.appSub)),
       React.createElement(LangDark),
       React.createElement(Steps,{a:0}),
-      React.createElement("div",{style:{display:"flex",gap:8,marginBottom:12}},
-        [["text",t.jdText],["pdf",t.jdFile]].map(([m,l])=>React.createElement("button",{key:m,onClick:()=>setJdMode(m),style:{flex:1,padding:"9px 0",borderRadius:10,border:`2px solid ${jdMode===m?BL:"#e2e8f0"}`,background:jdMode===m?LIGHT:"#f8fafc",color:jdMode===m?BL:"#64748b",fontWeight:600,fontSize:13,cursor:"pointer"}},l))
+      // ── ZONE UNIFIÉE : textarea + drag & drop ──
+      React.createElement("div",{
+        style:{position:"relative",marginBottom:4},
+        onDragOver:e=>{e.preventDefault();e.currentTarget.querySelector(".jd-drop-overlay").style.opacity="1";},
+        onDragLeave:e=>{e.currentTarget.querySelector(".jd-drop-overlay").style.opacity="0";},
+        onDrop:e=>{
+          e.preventDefault();
+          e.currentTarget.querySelector(".jd-drop-overlay").style.opacity="0";
+          const f=e.dataTransfer.files[0];
+          if(f)handleJdFile(f);
+        }
+      },
+        // Textarea principale
+        React.createElement("textarea",{
+          value:jd,
+          onChange:e=>setJd(e.target.value),
+          placeholder:lang==="fr"
+            ?"Collez votre fiche de poste ici...\n\n💡 Vous pouvez aussi glisser-déposer un fichier PDF ou Word directement ici."
+            :"Paste your job description here...\n\n💡 You can also drag & drop a PDF or Word file directly here.",
+          style:{width:"100%",minHeight:200,padding:"14px 14px 48px 14px",border:`2px solid ${jdFile?"#10b981":"#e2e8f0"}`,borderRadius:12,fontSize:14,resize:"vertical",outline:"none",boxSizing:"border-box",fontFamily:"inherit",lineHeight:1.6,background:jdFile?"#f0fdf4":"#fff",color:"#1a4a4e"},
+          onFocus:e=>e.target.style.border=`2px solid ${BL}`,
+          onBlur:e=>e.target.style.border=`2px solid ${jdFile?"#10b981":"#e2e8f0"}`
+        }),
+        // Overlay de drop (visible pendant le drag)
+        React.createElement("div",{
+          className:"jd-drop-overlay",
+          style:{position:"absolute",inset:0,background:`${BL}ee`,borderRadius:12,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",opacity:0,transition:"opacity .15s",pointerEvents:"none",gap:8}
+        },
+          React.createElement("div",{style:{fontSize:40}},"📄"),
+          React.createElement("p",{style:{color:"#fff",fontWeight:800,fontSize:16,margin:0}}),lang==="fr"?"Déposez votre fichier ici":"Drop your file here"
+        ),
+        // Barre du bas : statut fichier + bouton import
+        React.createElement("div",{style:{position:"absolute",bottom:0,left:0,right:0,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 12px",borderTop:"1px solid #e6f5f6",background:"#f8fafc",borderRadius:"0 0 10px 10px"}},
+          jdFile
+            ? React.createElement("span",{style:{fontSize:11,color:"#166534",fontWeight:600,display:"flex",alignItems:"center",gap:5}},
+                React.createElement("span",null,"✅"),jdFile.name,
+                React.createElement("button",{onClick:()=>{setJdFile(null);setJdMode("text");},style:{background:"none",border:"none",color:"#94a3b8",cursor:"pointer",fontSize:12,marginLeft:4}},"✕")
+              )
+            : React.createElement("span",{style:{fontSize:11,color:"#94a3b8"}}),
+          React.createElement("label",{
+            style:{display:"flex",alignItems:"center",gap:5,padding:"5px 10px",borderRadius:8,background:LIGHT,color:BL,fontWeight:700,fontSize:12,cursor:"pointer",border:`1px solid ${BL}33`}
+          },
+            React.createElement("span",null,"📎"),
+            lang==="fr"?"Importer un fichier":"Import a file",
+            React.createElement("input",{type:"file",accept:".pdf,.doc,.docx",style:{display:"none"},onChange:e=>e.target.files[0]&&handleJdFile(e.target.files[0])})
+          )
+        )
       ),
-      jdMode==="text"
-        ?React.createElement("textarea",{value:jd,onChange:e=>setJd(e.target.value),placeholder:t.jdPh,style:{width:"100%",minHeight:180,padding:14,border:"2px solid #e2e8f0",borderRadius:12,fontSize:14,resize:"vertical",outline:"none",boxSizing:"border-box",fontFamily:"inherit",lineHeight:1.6,marginBottom:4},onFocus:e=>e.target.style.border=`2px solid ${BL}`,onBlur:e=>e.target.style.border="2px solid #e2e8f0"})
-        :React.createElement(DropZone,{onFile:handleJdFile,file:jdFile,accept:".pdf,.doc,.docx",label:t.jdDrop,sub:t.jdDropSub}),
       err&&React.createElement("p",{style:{color:"#dc2626",fontSize:12,margin:"6px 0"}},err),
       loading&&React.createElement("div",{style:{padding:12,background:LIGHT,borderRadius:10,color:BL,fontSize:13,fontWeight:600,marginBottom:8}},"⏳ "+loadMsg),
-      React.createElement("button",{onClick:doAnalyzeJD,disabled:loading||(jdMode==="text"&&!jd.trim())||(jdMode==="pdf"&&!jdFile),style:{width:"100%",padding:14,background:loading||(jdMode==="text"&&!jd.trim())||(jdMode==="pdf"&&!jdFile)?"#cbd5e1":`linear-gradient(135deg,${BL2},${BL})`,color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer",marginTop:4}},loading?t.jdAn:t.jdBtn)
+      React.createElement("button",{onClick:doAnalyzeJD,disabled:loading||(!jd.trim()&&!jdFile),style:{width:"100%",padding:14,background:loading||(!jd.trim()&&!jdFile)?"#cbd5e1":`linear-gradient(135deg,${BL2},${BL})`,color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer",marginTop:8}},loading?t.jdAn:t.jdBtn)
     )
   );
 
@@ -424,12 +466,20 @@ function App(){
                   React.createElement("p",{style:{margin:0,fontWeight:700,color:"#1a4a4e",fontSize:14}},c.name),
                   React.createElement("p",{style:{margin:"2px 0 0",fontSize:11,color:"#64748b",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},c.title)
                 ),
-                React.createElement("div",{style:{display:"flex",gap:8,flexShrink:0}},
-                  [["🔗",c.linkedinScore||0,false],["🤖",c.aiScore||0,true],["🧭",c.coherenceScore||0,false],["📌",c.stabiliteScore||0,false],["📍",c.geoScore||0,false]].map(([icon,sc2,inv],ki)=>{
+                React.createElement("div",{style:{display:"flex",gap:6,flexShrink:0}},
+                  [
+                    ["🔗",lang==="fr"?"LinkedIn":"LinkedIn",c.linkedinScore||0,false],
+                    ["🤖",lang==="fr"?"IA":"AI",c.aiScore||0,true],
+                    ["🧭",lang==="fr"?"Cohérence":"Coherence",c.coherenceScore||0,false],
+                    ["📌",lang==="fr"?"Stabilité":"Stability",c.stabiliteScore||0,false],
+                    ["📍",lang==="fr"?"Géo":"Geo",c.geoScore||0,false]
+                  ].map(([icon,label,sc2,inv],ki)=>{
                     const col=inv?(sc2>=60?"#ef4444":sc2>=30?GOLD:"#10b981"):(sc2>=70?"#10b981":sc2>=50?GOLD:"#ef4444");
-                    return React.createElement("div",{key:ki,style:{textAlign:"center",width:34}},
-                      React.createElement("div",{style:{fontSize:10}},icon),
-                      React.createElement("div",{style:{fontSize:10,fontWeight:700,color:col}},sc2+"%")
+                    const bg=inv?(sc2>=60?"#fef2f2":sc2>=30?"#fef9c3":"#f0fdf4"):(sc2>=70?"#f0fdf4":sc2>=50?"#fef9c3":"#fef2f2");
+                    return React.createElement("div",{key:ki,style:{textAlign:"center",background:bg,borderRadius:9,padding:"5px 8px",minWidth:52,border:`1px solid ${col}33`}},
+                      React.createElement("div",{style:{fontSize:13,marginBottom:2}},icon),
+                      React.createElement("div",{style:{fontSize:11,fontWeight:800,color:col,lineHeight:1}},sc2+"%"),
+                      React.createElement("div",{style:{fontSize:9,color:"#94a3b8",marginTop:2,fontWeight:600,whiteSpace:"nowrap"}},label)
                     );
                   })
                 ),
@@ -440,6 +490,27 @@ function App(){
                 React.createElement("span",{style:{color:"#94a3b8",fontSize:12,flexShrink:0}},open===c.id?"▲":"▼")
               ),
               open===c.id&&React.createElement("div",{style:{padding:"0 24px 20px"}},
+
+                // ── CRITÈRES EN HAUT ──
+                React.createElement("div",{style:{background:"#f8fafc",borderRadius:12,padding:"14px 16px",marginBottom:12,border:`1px solid ${BL}18`}},
+                  React.createElement("p",{style:{margin:"0 0 10px",fontWeight:800,fontSize:12,color:BL,letterSpacing:.5,textTransform:"uppercase"}},t.scoreCrit),
+                  React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}},
+                    ...(c.scores||[]).map((s,j)=>{
+                      const bCol=s.score>=70?BL:s.score>=50?GOLD:"#ef4444";
+                      return React.createElement("div",{key:j,style:{background:"#fff",borderRadius:10,padding:"10px 12px",border:`1px solid ${COLORS[j%COLORS.length]}22`}},
+                        React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:5}},
+                          React.createElement("span",{style:{fontSize:11,color:"#334155",fontWeight:700,flex:1,paddingRight:6}},s.criterion),
+                          React.createElement("span",{style:{fontSize:16,fontWeight:900,color:bCol,flexShrink:0}},s.score)
+                        ),
+                        React.createElement("div",{style:{background:"#e6f5f6",borderRadius:99,height:5,overflow:"hidden",marginBottom:s.why?5:0}},
+                          React.createElement("div",{style:{width:`${s.score}%`,background:bCol,height:"100%",borderRadius:99}})
+                        ),
+                        s.why&&React.createElement("p",{style:{margin:0,fontSize:10,color:"#64748b",lineHeight:1.4,fontStyle:"italic"}},s.why)
+                      );
+                    })
+                  )
+                ),
+
                 React.createElement("p",{style:{color:"#64748b",fontSize:13,lineHeight:1.8,padding:"12px 16px",background:"#f8fafc",borderRadius:10,borderLeft:`3px solid ${BL}`,margin:"0 0 12px"}},c.summary),
                 c.autoDeclaration&&(c.autoDeclaration.toLowerCase().startsWith("oui")||c.autoDeclaration.toLowerCase().startsWith("yes"))&&
                   React.createElement("div",{style:{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:10,padding:"10px 14px",marginBottom:12,display:"flex",gap:8}},
@@ -497,15 +568,6 @@ function App(){
                     )
                   )
                 ),
-                React.createElement("div",{style:{background:"#f8fafc",borderRadius:12,padding:"12px 16px"}},
-                  React.createElement("p",{style:{margin:"0 0 10px",fontWeight:700,fontSize:12,color:"#64748b"}},t.scoreCrit),
-                  React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"6px 20px"}},
-                    ...(c.scores||[]).map((s,j)=>React.createElement("div",{key:j},
-                      React.createElement("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:3}},React.createElement("span",{style:{fontSize:11,color:"#334155",fontWeight:600}},s.criterion),React.createElement("span",{style:{fontSize:12,fontWeight:800,color:COLORS[j%COLORS.length]}},s.score)),
-                      React.createElement(Bar,{score:s.score,color:COLORS[j%COLORS.length]})
-                    ))
-                  )
-                )
               )
             );
           })
