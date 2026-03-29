@@ -64,7 +64,7 @@ function toB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onlo
 
 async function callAPI(key,messages,useSearch){
   for(let i=0;i<3;i++){
-    const body={model:"claude-sonnet-4-20250514",max_tokens:useSearch?3000:2000,system:"HR expert. Reply ONLY with valid JSON, no markdown.",messages};
+    const body={model:"claude-sonnet-4-20250514",max_tokens:useSearch?4000:2000,system:"HR expert. Reply ONLY with valid JSON, no markdown, no explanation before or after.",messages};
     if(useSearch)body.tools=[{type:"web_search_20250305",name:"web_search"}];
     const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify(body)});
     const d=await r.json();
@@ -72,8 +72,23 @@ async function callAPI(key,messages,useSearch){
     if(!r.ok)throw new Error(d.error?.message||JSON.stringify(d));
     const texts=(d.content||[]).filter(b=>b.type==="text");
     if(!texts.length)throw new Error("No text response");
-    return texts[texts.length-1].text.replace(/```json|```/g,"").trim();
+    const raw=texts[texts.length-1].text;
+    const first=raw.indexOf("{");const last=raw.lastIndexOf("}");
+    if(first===-1||last===-1)throw new Error("No JSON found in response");
+    return raw.slice(first,last+1).trim();
   }
+}
+
+// ── Repair JSON cassé via un 2e appel API ──
+async function repairJSON(key,brokenJSON){
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,system:"You are a JSON repair expert. Fix the broken JSON and return ONLY the valid JSON, nothing else.",messages:[{role:"user",content:"Fix this broken JSON and return ONLY the corrected JSON:\n\n"+brokenJSON}]})});
+  const d=await r.json();
+  const texts=(d.content||[]).filter(b=>b.type==="text");
+  if(!texts.length)throw new Error("Repair failed");
+  const raw=texts[0].text;
+  const first=raw.indexOf("{");const last=raw.lastIndexOf("}");
+  if(first===-1||last===-1)throw new Error("No JSON in repair response");
+  return raw.slice(first,last+1).trim();
 }
 
 function Bar({score,color}){return React.createElement("div",{style:{background:"#e6f5f6",borderRadius:99,height:5,overflow:"hidden"}},React.createElement("div",{style:{width:`${score||0}%`,background:color||BL,height:"100%",borderRadius:99}}));}
@@ -231,7 +246,7 @@ function App(){
     setLoading(false);
   }
 
-  // ── MODIFIÉ : doAnalyzeCV met à jour la progression ──
+  // ── doAnalyzeCV avec retry JSON intelligent ──
   async function doAnalyzeCV(f,idx,total,updateStatus){
     updateStatus(idx-1,"running",f.name);
     try{
@@ -239,8 +254,29 @@ function App(){
       const prompt=lang==="en"
         ?`Rigorous HR expert. Answer ONLY in English.\nJob location: ${jd.slice(0,200)}\nCriteria: ${JSON.stringify(criteria)}\n\nSTEP 1 — Read CV carefully.\nSTEP 2 — Web searches: for each company find what it does (sector/activity), verify candidate on LinkedIn/web, press articles, degrees, geographic distance.\nSTEP 3 — Critical analysis: 1.SELF-DECLARATION(title vs real positions) 2.CONSISTENCY(path/breaks) 3.STABILITY(duration,<6mo=red) 4.ACCURACY(suspicious figures) 5.AI DETECTION(writing style) 6.GEO PROXIMITY(ON-SITE<30km/NEARBY30-70/FAR70-100/RELOCATION>100)\n\nJSON ONLY:\n{"name":"Full Name","title":"Last REAL position","exp":"X years","edu":"Degree","summary":"Critical 2-3 sentence summary","global":75,"coherenceScore":70,"stabiliteScore":65,"linkedinScore":75,"aiScore":30,"geoScore":90,"candidateCity":"City","jobCity":"Job city","estimatedDistanceKm":15,"geoCategory":"ON-SITE","geoNote":"explanation","coherenceNote":"career analysis","stabiliteNote":"stability analysis","autoDeclaration":"Yes/No — explanation","webVerification":{"entreprisesVerifiees":[{"name":"Co","status":"✅","description":"What it does","relevance":"Relevant"}],"presenceWeb":"Found/Not found","articlesPresse":[],"incoherencesDetectees":[]},"alertes":[],"scores":[{"criterion":"exact name","score":75,"why":"justification"}],"pros":["strength"],"cons":["weakness"]}`
         :`Expert RH rigoureux. Réponds UNIQUEMENT en français.\nLocalisation poste: ${jd.slice(0,200)}\nCritères: ${JSON.stringify(criteria)}\n\nÉTAPE 1 — Lis le CV attentivement.\nÉTAPE 2 — Recherches web : pour chaque entreprise du CV trouve ce qu'elle fait (secteur/activité), cherche le candidat sur LinkedIn/web, articles presse, diplômes, distance géographique.\nÉTAPE 3 — Analyse critique : 1.AUTO-DÉCLARATION(titre vs postes réels) 2.COHÉRENCE(fil rouge/ruptures) 3.STABILITÉ(durée,<6mois=rouge) 4.VÉRACITÉ(chiffres suspects) 5.DÉTECTION IA(style d'écriture) 6.PROXIMITÉ GÉO(SUR PLACE<30km/PROCHE30-70/ÉLOIGNÉ70-100/DÉMÉNAGEMENT>100)\n\nJSON UNIQUEMENT:\n{"name":"Nom Prénom","title":"Dernier poste RÉEL","exp":"X ans","edu":"Diplôme","summary":"Résumé critique 2-3 phrases","global":75,"coherenceScore":70,"stabiliteScore":65,"linkedinScore":75,"aiScore":30,"geoScore":90,"candidateCity":"Ville","jobCity":"Ville poste","estimatedDistanceKm":15,"geoCategory":"SUR PLACE","geoNote":"explication","coherenceNote":"analyse parcours","stabiliteNote":"analyse stabilité","autoDeclaration":"Oui/Non — explication","webVerification":{"entreprisesVerifiees":[{"name":"Ent","status":"✅","description":"Ce que fait l'entreprise","relevance":"Pertinent"}],"presenceWeb":"Trouvé/Non trouvé","articlesPresse":[],"incoherencesDetectees":[]},"alertes":[],"scores":[{"criterion":"nom exact","score":75,"why":"justification"}],"pros":["force"],"cons":["faiblesse"]}`;
-      const raw=await callAPI(apiKey,[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:prompt}]}],true);
-      const c=JSON.parse(raw);
+
+      let raw=await callAPI(apiKey,[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:prompt}]}],true);
+
+      // ── Tentative de parse — si échec, on répare le JSON ──
+      let c;
+      try{
+        c=JSON.parse(raw);
+      }catch(parseErr){
+        // 1er essai de réparation
+        try{
+          const repaired=await repairJSON(apiKey,raw);
+          c=JSON.parse(repaired);
+        }catch(repairErr){
+          // 2e essai : renvoyer tout le prompt avec instruction stricte
+          raw=await callAPI(apiKey,[
+            {role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:prompt}]},
+            {role:"assistant",content:raw},
+            {role:"user",content:"Your response was not valid JSON. Return ONLY the JSON object, starting with { and ending with }, no text before or after."}
+          ],false);
+          c=JSON.parse(raw);
+        }
+      }
+
       c.id=Date.now()+Math.random();
       setCandidates(p=>[...p,c].sort((a,b)=>b.global-a.global));
       updateStatus(idx-1,"done",f.name);
@@ -250,8 +286,16 @@ function App(){
       updateStatus(idx-1,"error",f.name);
       if(m.includes("rate")||m.includes("overloaded"))await new Promise(res=>setTimeout(res,10000));
     }
-    // Incrémenter done après chaque CV (succès ou erreur)
     setProgress(p=>({...p,done:p.done+1,currentFile:""}));
+  }
+
+  // ── Traitement SÉQUENTIEL (un CV à la fois) ──
+  async function processSequentially(pdfs,updateStatus){
+    for(let i=0;i<pdfs.length;i++){
+      await doAnalyzeCV(pdfs[i],i+1,pdfs.length,updateStatus);
+      // Pause de 1s entre chaque CV pour éviter le rate limit
+      if(i<pdfs.length-1)await new Promise(res=>setTimeout(res,1000));
+    }
   }
 
   function pickCVs(files){
@@ -259,12 +303,10 @@ function App(){
     const pdfs=[...files].filter(f=>f.type==="application/pdf");
     if(!pdfs.length)return;
 
-    // Initialiser la progression
     const initialStatuses=pdfs.map(f=>({name:f.name,status:"waiting"}));
     setProgress({done:0,total:pdfs.length,currentFile:"",statuses:initialStatuses});
     setLoading(true);
 
-    // Fonction pour mettre à jour le statut d'un CV individuel
     const updateStatus=(index,status,name)=>{
       setProgress(p=>{
         const newStatuses=[...p.statuses];
@@ -274,7 +316,7 @@ function App(){
       });
     };
 
-    Promise.all(pdfs.map((f,i)=>doAnalyzeCV(f,i+1,pdfs.length,updateStatus)))
+    processSequentially(pdfs,updateStatus)
       .then(()=>{setLoading(false);setLoadMsg("");});
   }
 
